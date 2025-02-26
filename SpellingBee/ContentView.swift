@@ -10,17 +10,20 @@
 // layouts
 // DONE image buttons instead of words
 // pointing system
-// randomize compliments
+// DONE randomize compliments
 // DONE show # possibilities after 3 letters
 // saving game locally (after each word) - restoring saved game on load
+// save game history -- maybe in overflow menu
 // move game state into own model object
 // DONE make enteredWord text read-only
 // look for panagrams
-// animate hexagons on shuffle
-// progress bar for percentage found
+// DONE animate hexagons on shuffle
+// DONE progress bar for percentage found
 // DONE long press Delete to clear entire word
-// make matching words hint only on press
-//
+// DONE make matching words hint only on press
+// show progress bar current value
+// animate when graduated to new level!
+// fix bug where some hexagons don't animate, they just snap into their new position
 
 import SwiftUI
 import AlertToast
@@ -43,10 +46,21 @@ struct ContentView: View {
     @FocusState private var wordEntryFocused: Bool
     @State private var showToast = false
     @State private var toastType = ToastType.toastFound
+    @State private var rectX = 100
+    @State private var isShuffling = false
+    @State private var showHint = false
 
     let VOWELS = ["a","e","i","o","u"]
     let CONS = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
 
+    private func getRandomCompliment() -> String {
+        return ["So cool!",
+         "Nice choice!",
+         "Keep it up!",
+         "Way to go!",
+         "Fun times!",
+         "Yippee!"].randomElement()!
+    }
     private func onSubmit() {
         if enteredWord.firstIndex(of: centerLetter![0]) == nil {
             toastType = ToastType.toastMissingCenterLetter
@@ -151,11 +165,43 @@ struct ContentView: View {
         }
     }
 
+    //TODO: to customize the look and feel of the gauge
+    struct CustomGaugeStyle: GaugeStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            
+        }
+    }
+
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                Text(outerLetters != nil ?
-                     "\(guessedWords!.count) / \(possibleWords!.count + guessedWords!.count) Found" : "Tap button below to start")
+                if outerLetters != nil {
+                    Gauge(value: Double(guessedWords!.count), in: 0...Double(possibleWords!.count)) {
+                        Text("Progress")
+                    } currentValueLabel: {
+                        Text("\(guessedWords!.count)")
+                    } minimumValueLabel: {
+                        Text(guessedWords!.count < 2 ? "Beginner" : "Good")
+//                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
+                            .bold()
+                            .foregroundStyle(.blue)
+                            //.foregroundStyle(
+                            //.shadow(color: .green, radius: 3)
+                            //.foregroundStyle(.shadow(.drop(radius: 3)))
+                    } maximumValueLabel: {
+                        Text("\(possibleWords!.count)")
+                    }
+                    .gaugeStyle(.accessoryLinear)
+                    .frame(height: 22)
+                    
+                    //TODO: if gauge can show value underneath, remove this
+                    Text("\(guessedWords!.count) / \(possibleWords!.count + guessedWords!.count) Found")
+                        .frame(height: 30)
+                } else {
+                    Spacer(minLength: 30)
+                    Text("Tap button below to start")
+                        .frame(height: 30)
+                }
                 Button("New Game") {
                     restartGame()
                     
@@ -193,48 +239,71 @@ struct ContentView: View {
                 )
                 .padding(.horizontal, 20)
 
-                Text(numWordsWithPrefix == -1 ? " " :
-                     "\(numWordsWithPrefix) matching words"
-                )
+                // Matching words hint
+                if showHint {
+                    Text(numWordsWithPrefix == -1 ? " " :
+                         "\(numWordsWithPrefix) matches"
+                    )
+                    .transition(.opacity)
+                    .frame(height: 40)
+                    .padding()
+                } else {
+                    Button("Show hint") {
+                        showHint = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            showHint = false
+                        }
+                    }
+                    .disabled(showHint || numWordsWithPrefix == -1)
+                    .transition(.opacity)
+                    .buttonStyle(.bordered)
+                    .frame(height: 40)
+                    .padding()
+                }
+                
+                // Honeycomb
                 Honeycomb(
                     outerLetters: outerLetters,
                     centerLetter: centerLetter,
                     //TODO: center honeycomb vertically/horizontally
                     //TODO: rect should be the rect of all hexagons, not just one
                     //rect: CGRect(x: 200, y: 400, width: 100, height: 100),
-                    rect: CGRect(x: geometry.size.width / 2 - 15, y: 200, width: 100, height: 100),
-                    { text, isCenter in
+                    //rect: CGRect(x: geometry.size.width / 2 - 15, y: 200, width: 100, height: 100),
+                    rect: CGRect(x: 180/*self.rectX*/, y: 150, width: 100, height: 100),
+                    isShuffling: $isShuffling,
+                    onTap: { text, isCenter in
                         print("Honeycomb letter entered: \(text), isCenter: \(isCenter)")
                         updateEnteredWord(text: self.enteredWord + text)
                     }
                 )
+                
+                // Button Row
                 HStack {
-//                    Button {
-//                        updateEnteredWord(text: String(enteredWord.dropLast(1)))
+                    // Delete Button
                     Button(action: {
                     }) {
                         //not needed?
-//                        VStack {
-                            Image(systemName: "delete.left.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .padding(.all, 10)
-                                .frame(width: 80, height: 50)
-                                .contentShape(Rectangle()) // to make space around image tappable
-                                .onTapGesture {
-                                    updateEnteredWord(text: String(enteredWord.dropLast(1)))
-                                }
-                                .onLongPressGesture(minimumDuration: 0.1) {
-                                    updateEnteredWord(text: "")
-                                }
-//                        }
+                        //                        VStack {
+                        Image(systemName: "delete.left.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(.all, 10)
+                            .frame(width: 80, height: 50)
+                            .contentShape(Rectangle()) // to make space around image tappable
+                            .onTapGesture {
+                                updateEnteredWord(text: String(enteredWord.dropLast(1)))
+                            }
+                            .onLongPressGesture(minimumDuration: 0.1) {
+                                updateEnteredWord(text: "")
+                            }
+                        //                        }
                     }
                     .disabled(outerLetters == nil || enteredWord.isEmpty)
                     .buttonStyle(.borderedProminent)
                     
+                    // Shuffle Button
                     Button {
-                        outerLetters = String(outerLetters!.shuffled())
-                        //TODO: instead of reassigning letters, apply animation to move hexagons around
+                        isShuffling = true
                     } label: {
                         Image(systemName: "shuffle")
                             .resizable()
@@ -245,6 +314,7 @@ struct ContentView: View {
                     .disabled(outerLetters == nil)
                     .buttonStyle(.borderedProminent)
                     
+                    // Enter Button
                     Button {
                         onSubmit()
                     } label: {
@@ -254,16 +324,19 @@ struct ContentView: View {
                     .disabled(outerLetters == nil)
                     .buttonStyle(.borderedProminent)
                 }
-                
             }
             .padding()
+
+            // Initialize game on first load
             .task {
                 initGame()
             }
+
+            // Present a toast if needed
             .toast(isPresenting: $showToast, duration: 1, alert: {
                 switch (toastType) {
                 case ToastType.toastFound:
-                    return AlertToast(displayMode: .hud, type: .complete(Color.white), title: "Great job dude!", style: .style(backgroundColor: Color.green, titleColor: Color.white))
+                    return AlertToast(displayMode: .hud, type: .complete(Color.white), title: getRandomCompliment(), style: .style(backgroundColor: Color.green, titleColor: Color.white))
                 case ToastType.toastTooShort:
                     return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Too short", style: .style(backgroundColor: Color.red, titleColor: Color.white))
                 case ToastType.toastNotFound:

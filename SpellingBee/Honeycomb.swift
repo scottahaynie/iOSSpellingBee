@@ -48,7 +48,8 @@ struct HexagonShape: Shape {
     }
 }
 
-struct HexagonButton: View {
+struct HexagonButton: View {//}, Identifiable {
+    //var id: UUID = UUID()
     private var text: String?
     private var rect: CGRect
     private var textColor: Color
@@ -77,42 +78,70 @@ struct HexagonButton: View {
         }
         .buttonStyle(PlainButtonStyle()) // Removes default button styling
         .position(self.rect.origin)
+        .animation(.easeInOut(duration: 1.0), value: self.rect.minX)
     }
 }
 
 struct Honeycomb: View {
-    private var outerLetters: String?
-    private var centerLetter: String?
+    var outerLetters: String?
+    var centerLetter: String?
     //TODO: rect should be the rect of all hexagons, not just one
-    private var rect: CGRect
-    private var onTap: (String, Bool) -> Void
+    var rect: CGRect
+    @Binding var isShuffling: Bool
+    var onTap: (String, Bool) -> Void
+    
+    @State private var positions: [CGPoint] = [
+        CGPoint(x: 0, y: 0),
+        CGPoint(x: 0, y: 0),
+        CGPoint(x: 0, y: 0),
+        CGPoint(x: 0, y: 0),
+        CGPoint(x: 0, y: 0),
+        CGPoint(x: 0, y: 0)
+    ]
 
-    init(outerLetters: String?, centerLetter: String?, rect: CGRect, _ onTap: @escaping (String, Bool) -> Void) {
-        self.outerLetters = outerLetters
-        self.centerLetter = centerLetter
-        self.rect = rect
-        self.onTap = onTap
-    }
+//    init(outerLetters: String?, centerLetter: String?, rect: CGRect, _ onTap: @escaping (String, Bool) -> Void) {
+//        self.outerLetters = outerLetters
+//        self.centerLetter = centerLetter
+//        self.rect = rect
+//        self.onTap = onTap
+//    }
 
-    static func getHexagonPoint(i: Int, x: CGFloat, y: CGFloat, size: CGFloat) -> CGPoint {
+    private static func getHexagonPoint(i: Int, x: CGFloat, y: CGFloat, size: CGFloat) -> CGPoint {
         let angle = CGFloat(i) * CGFloat.pi * 2 / 6 + (CGFloat.pi / 6)
         return CGPoint(x: x + cos(angle) * size * 1.9, y: y + sin(angle) * size * 1.9)
     }
 
-    private func createHexagonButtons() -> some View {
+    private func initPositions() {
+        //TODO: how to disable initial animation here???
+        let center = self.rect.origin
+        let sideLength = min(self.rect.width, self.rect.height) / 2
+        for i in 0..<6 {
+            positions[i] = Honeycomb.getHexagonPoint(i: i, x: center.x, y: center.y, size: sideLength)
+        }
+    }
+
+    private func shufflePositions() {
+        // shuffle until all positions have changed
+        while(true) {
+            let positionsNew = positions.shuffled()
+            if (positionsNew.enumerated().first(where: { positionsNew[$0.offset] == positions[$0.offset]}) == nil) {
+                positions = positionsNew
+                break;
+            }
+        }
+    }
+
+    private func createHexagonButtons(isShuffling: Bool) -> some View {
         // rect is the center hexagon rect
         ZStack {
-            let center = self.rect.origin
-            let sideLength = min(self.rect.width, self.rect.height) / 2
-            ForEach(0..<6, id: \.self) { i in
-                let pos = Honeycomb.getHexagonPoint(i: i, x: center.x, y: center.y, size: sideLength)
+            ForEach(0..<6, id: \.self) { index in
                 HexagonButton(
-                    text: self.outerLetters != nil ? String(self.outerLetters![i]) : nil,
-                    rect: CGRect(origin: pos, size: self.rect.size),
+                    text: self.outerLetters != nil ? String(self.outerLetters![index]) : nil,
+                    rect: CGRect(origin: positions[index], size: self.rect.size),
                     textColor: Color.white,
                     backgroundColor: Color.blue,
                     { text in
-                        print(String(format: "hexagon button tapped %d", i))
+                        print(String(format: "hexagon button tapped %d", index))
                         self.onTap(text, false)
                     }
                 )
@@ -131,7 +160,18 @@ struct Honeycomb: View {
     }
     var body: some View {
         ZStack {
-            createHexagonButtons()
+            createHexagonButtons(isShuffling: isShuffling)
+        }
+        .onAppear() {
+            initPositions()
+        }
+        .onChange(of: isShuffling) { oldValue, newValue in
+            if newValue {
+//                withAnimation(
+                    shufflePositions()
+                isShuffling = false
+//                )
+            }
         }
     }
 }
