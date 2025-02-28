@@ -148,6 +148,7 @@ trie.insert(val: "helpme")
 
 trie.contains(val: "helpme")
 trie.contains(prefix: "hel")
+trie.contains(val: "hel")
 
 trie.find(prefix: "hel")
 */

@@ -48,15 +48,14 @@ struct HexagonShape: Shape {
     }
 }
 
-struct HexagonButton: View {//}, Identifiable {
-    //var id: UUID = UUID()
-    private var text: String?
+struct HexagonButton: View {
+    private var text: String
     private var rect: CGRect
     private var textColor: Color
     private var backgroundColor: Color
     private var action: (String) -> Void
 
-    init(text: String?, rect: CGRect, textColor: Color, backgroundColor: Color, _ action: @escaping (String) -> Void) {
+    init(text: String, rect: CGRect, textColor: Color, backgroundColor: Color, _ action: @escaping (String) -> Void) {
         self.text = text
         self.rect = rect
         self.textColor = textColor
@@ -65,10 +64,11 @@ struct HexagonButton: View {//}, Identifiable {
     }
     
     var body: some View {
-        Button(action: text != nil ? {action(text!)} : {}) {
-            Text(text ?? "")
+        Button(action: text.isEmpty ? {} : {action(text)}) {
+            Text(text)
                 .font(Font.custom("Arial", fixedSize: 50))
                 .bold()
+                .contentTransition(.numericText()) // needs withAnimation around newGame
                 .foregroundColor(self.textColor)
                 .padding()
                 .frame(width: self.rect.width, height: self.rect.height)
@@ -78,13 +78,13 @@ struct HexagonButton: View {//}, Identifiable {
         }
         .buttonStyle(PlainButtonStyle()) // Removes default button styling
         .position(self.rect.origin)
-        .animation(.easeInOut(duration: 1.0), value: self.rect.minX)
+        //.animation(.easeInOut(duration: 1.0), value: self.rect.minX)
     }
 }
 
 struct Honeycomb: View {
-    var outerLetters: String?
-    var centerLetter: String?
+    var outerLetters: String
+    var centerLetter: String
     //TODO: rect should be the rect of all hexagons, not just one
     var rect: CGRect
     @Binding var isShuffling: Bool
@@ -112,7 +112,6 @@ struct Honeycomb: View {
     }
 
     private func initPositions() {
-        //TODO: how to disable initial animation here???
         let center = self.rect.origin
         let sideLength = min(self.rect.width, self.rect.height) / 2
         for i in 0..<6 {
@@ -126,7 +125,7 @@ struct Honeycomb: View {
             let positionsNew = positions.shuffled()
             if (positionsNew.enumerated().first(where: { positionsNew[$0.offset] == positions[$0.offset]}) == nil) {
                 positions = positionsNew
-                break;
+                break
             }
         }
     }
@@ -136,7 +135,7 @@ struct Honeycomb: View {
         ZStack {
             ForEach(0..<6, id: \.self) { index in
                 HexagonButton(
-                    text: self.outerLetters != nil ? String(self.outerLetters![index]) : nil,
+                    text: self.outerLetters.isEmpty ? "" : String(self.outerLetters[index]),
                     rect: CGRect(origin: positions[index], size: self.rect.size),
                     textColor: Color.white,
                     backgroundColor: Color.blue,
@@ -167,10 +166,10 @@ struct Honeycomb: View {
         }
         .onChange(of: isShuffling) { oldValue, newValue in
             if newValue {
-//                withAnimation(
+                withAnimation(.bouncy(duration: 1.0)) {
                     shufflePositions()
+                }
                 isShuffling = false
-//                )
             }
         }
     }
