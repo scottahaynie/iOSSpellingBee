@@ -50,9 +50,9 @@ struct Modal<Content: View>: View {
             .cornerRadius(12)
             .overlay(alignment: .topTrailing) {
                 Button(action: {
-                    withAnimation {
+                    //withAnimation {
                         showModal = false
-                    }
+                    //}
                 }, label: {
                     Image(systemName: "xmark.circle")
                 })

@@ -12,13 +12,63 @@ class GameState: ObservableObject, Codable {
     var createDate: Date = Date.now
     @Published var outerLetters: String = "" // uppercased
     @Published var centerLetter: String = "" // uppercased
-    @Published var possibleWords: [String] = []
+    @Published var remainingWords: [String] = []
     @Published var guessedWords: [String] = []
+    @Published var possiblePoints: Int = 0
+    @Published var guessedPoints: Int = 0
     @Published var enteredWord = ""
     @Published var numWordsWithPrefix = -1
+
     @Published var difficultyLevel = DifficultyLevel.easy
+    var minCharacters: Int {
+        get {
+            return difficultyLevel == DifficultyLevel.kids ? Util.MIN_CHARS_KIDS : Util.MIN_CHARS_ADULTS
+        }
+    }
+    var rank: Rank {
+        get {
+            if possiblePoints > 0 {
+                let progressPct = Double(guessedPoints) / Double(possiblePoints)
+                switch progressPct {
+                case 0.00..<0.02:
+                    return Rank.Beginner
+                case 0.02..<0.05:
+                    return Rank.GoodStart
+                case 0.05..<0.08:
+                    return Rank.MovingUp
+                case 0.08..<0.15:
+                    return Rank.Good
+                case 0.15..<0.25:
+                    return Rank.Solid
+                case 0.25..<0.40:
+                    return Rank.Nice
+                case 0.40..<0.50:
+                    return Rank.Great
+                case 0.50..<0.70:
+                    return Rank.Amazing
+                default:
+                    return Rank.Genius
+                }
+            } else {
+                return Rank.Beginner
+            }
+        }
+    }
+
+    enum Rank: String {
+        case Beginner = "Beginner"
+        case GoodStart = "Good Start"
+        case MovingUp = "Moving Up"
+        case Good = "Good"
+        case Solid = "Solid"
+        case Nice = "Nice"
+        case Great = "Great"
+        case Amazing = "Amazing"
+        case Genius = "Genius"
+    }
 
     enum DifficultyLevel: String, Codable {
+        case kids
         case easy
         case medium
         case hard
@@ -29,8 +79,10 @@ class GameState: ObservableObject, Codable {
         case 
         outerLetters,
         centerLetter,
-        possibleWords,
+        remainingWords,
         guessedWords,
+        possiblePoints,
+        guessedPoints,
         enteredWord,
         numWordsWithPrefix,
         difficultyLevel
@@ -41,8 +93,10 @@ class GameState: ObservableObject, Codable {
         
         outerLetters = try container.decode(String.self, forKey: .outerLetters)
         centerLetter = try container.decode(String.self, forKey: .centerLetter)
-        possibleWords = try container.decode([String].self, forKey: .possibleWords)
+        remainingWords = try container.decode([String].self, forKey: .remainingWords)
         guessedWords = try container.decode([String].self, forKey: .guessedWords)
+        possiblePoints = try container.decode(Int.self, forKey: .possiblePoints)
+        guessedPoints = try container.decode(Int.self, forKey: .guessedPoints)
         enteredWord = try container.decode(String.self, forKey: .enteredWord)
         numWordsWithPrefix = try container.decode(Int.self, forKey: .numWordsWithPrefix)
         difficultyLevel = try container.decode(DifficultyLevel.self, forKey: .difficultyLevel)
@@ -53,14 +107,15 @@ class GameState: ObservableObject, Codable {
         
         try container.encode(outerLetters, forKey: .outerLetters)
         try container.encode(centerLetter, forKey: .centerLetter)
-        try container.encode(possibleWords, forKey: .possibleWords)
+        try container.encode(remainingWords, forKey: .remainingWords)
         try container.encode(guessedWords, forKey: .guessedWords)
+        try container.encode(possiblePoints, forKey: .possiblePoints)
+        try container.encode(guessedPoints, forKey: .guessedPoints)
         try container.encode(enteredWord, forKey: .enteredWord)
         try container.encode(numWordsWithPrefix, forKey: .numWordsWithPrefix)
         try container.encode(difficultyLevel, forKey: .difficultyLevel)
     }
 
-    //TODO: remove me?
     func save() async throws {
         let encoder = JSONEncoder()
         
@@ -90,6 +145,7 @@ class GameStore: ObservableObject {
         self.game = game
     }
     
+    //TODO: not used
     func save() async throws {
         let encoder = JSONEncoder()
         

@@ -9,6 +9,9 @@ import Foundation
 import Collections
 
 class Util {
+    static let MIN_CHARS_KIDS = 3
+    static let MIN_CHARS_ADULTS = 4
+    
     static func getWord(node: Trie.Node) -> String {
         var parent = node.parent
         var output = node.val ?? ""

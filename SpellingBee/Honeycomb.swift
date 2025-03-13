@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 // allows specifying colors by hex. eg. Color(hex: 44AAFF)
 extension Color {
@@ -48,6 +49,14 @@ struct HexagonShape: Shape {
     }
 }
 
+struct ScaleButtonStyle: ButtonStyle {
+    public func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .opacity(configuration.isPressed ? 0.7 : 1)
+    }
+}
+
 struct HexagonButton: View {
     private var text: String
     private var rect: CGRect
@@ -66,8 +75,9 @@ struct HexagonButton: View {
     var body: some View {
         Button(action: text.isEmpty ? {} : {action(text)}) {
             Text(text)
-                .font(Font.custom("Arial", fixedSize: 50))
-                .bold()
+                //.font(Font.custom("Arial", fixedSize: 50))
+                .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
+                //.bold()
                 .contentTransition(.numericText()) // needs withAnimation around newGame
                 .foregroundColor(self.textColor)
                 .padding()
@@ -76,13 +86,17 @@ struct HexagonButton: View {
                 .overlay(HexagonShape().stroke(Color.white, lineWidth: 2))
                 .shadow(radius: 5)
         }
-        .buttonStyle(PlainButtonStyle()) // Removes default button styling
+        //.buttonStyle(PlainButtonStyle()) // Removes default button styling
+        .buttonStyle(ScaleButtonStyle())
         .position(self.rect.origin)
         //.animation(.easeInOut(duration: 1.0), value: self.rect.minX)
     }
 }
 
 struct Honeycomb: View {
+    let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                        category: String(describing: Honeycomb.self))
+
     var outerLetters: String
     var centerLetter: String
     //TODO: rect should be the rect of all hexagons, not just one
@@ -98,13 +112,6 @@ struct Honeycomb: View {
         CGPoint(x: 0, y: 0),
         CGPoint(x: 0, y: 0)
     ]
-
-//    init(outerLetters: String?, centerLetter: String?, rect: CGRect, _ onTap: @escaping (String, Bool) -> Void) {
-//        self.outerLetters = outerLetters
-//        self.centerLetter = centerLetter
-//        self.rect = rect
-//        self.onTap = onTap
-//    }
 
     private static func getHexagonPoint(i: Int, x: CGFloat, y: CGFloat, size: CGFloat) -> CGPoint {
         let angle = CGFloat(i) * CGFloat.pi * 2 / 6 + (CGFloat.pi / 6)
@@ -140,7 +147,7 @@ struct Honeycomb: View {
                     textColor: Color.white,
                     backgroundColor: Color.blue,
                     { text in
-                        print(String(format: "hexagon button tapped %d", index))
+                        logger.debug("hexagon button tapped \(index)")
                         self.onTap(text, false)
                     }
                 )
@@ -151,7 +158,7 @@ struct Honeycomb: View {
                 textColor: Color.white,
                 backgroundColor: Color.indigo,
                 { text in
-                    print(String(format: "center hexagon tapped"))
+                    logger.debug("center hexagon tapped")
                     self.onTap(text, true)
                 }
             )
@@ -175,8 +182,20 @@ struct Honeycomb: View {
     }
 }
 
-//#Preview {
-//    Honeycomb(outerLetters: "ABCDEF", centerLetter: "O", rect: CGRect(x: 200, y: 200, width: 100, height: 100), { text, isCenter in
-//        print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
-//    })
-//}
+#Preview {
+    @Previewable @State var isShuffling: Bool = false
+    Group {
+        Button("Shuffle") {
+            isShuffling = true
+        }
+        Honeycomb(
+            outerLetters: "ABCDEF",
+            centerLetter: "O",
+            rect: CGRect(x: 200, y: 200, width: 100, height: 100),
+            isShuffling: $isShuffling, //.constant(false),
+            onTap: { text, isCenter in
+                print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
+            }
+        )
+    }
+}

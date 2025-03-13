@@ -3,18 +3,19 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1C3558972D7049280071A067 /* Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558962D7049280071A067 /* Modal.swift */; };
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
-		1C5E0B712D6880DF00CCB9DB /* EWOL-Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1C5E0B702D6880DF00CCB9DB /* EWOL-Words.txt */; };
+		1C5E0B712D6880DF00CCB9DB /* EOWL-Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */; };
 		1C5E0B742D6892B700CCB9DB /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 1C5E0B732D6892B700CCB9DB /* AlertToast */; };
 		1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */; };
 		1C64B9412D6855AB007AFF39 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C64B9402D6855AB007AFF39 /* Trie.swift */; };
 		1C64B9432D685910007AFF39 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C64B9422D685910007AFF39 /* Util.swift */; };
 		1C64B9462D685EF9007AFF39 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 1C64B9452D685EF9007AFF39 /* Collections */; };
+		1CD612DD2D82BDF40006FEDF /* 1000-most-common-words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */; };
 		1CEC94722D5954710099DD07 /* SpellingBeeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CEC94712D5954710099DD07 /* SpellingBeeApp.swift */; };
 		1CEC94742D5954710099DD07 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CEC94732D5954710099DD07 /* ContentView.swift */; };
 		1CEC94762D5954740099DD07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1CEC94752D5954740099DD07 /* Assets.xcassets */; };
@@ -44,10 +45,11 @@
 /* Begin PBXFileReference section */
 		1C3558962D7049280071A067 /* Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modal.swift; sourceTree = "<group>"; };
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
-		1C5E0B702D6880DF00CCB9DB /* EWOL-Words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "EWOL-Words.txt"; sourceTree = "<group>"; };
+		1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "EOWL-Words.txt"; sourceTree = "<group>"; };
 		1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Honeycomb.swift; sourceTree = "<group>"; };
 		1C64B9402D6855AB007AFF39 /* Trie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
 		1C64B9422D685910007AFF39 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "1000-most-common-words.txt"; sourceTree = "<group>"; };
 		1CEC946E2D5954710099DD07 /* SpellingBee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpellingBee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1CEC94712D5954710099DD07 /* SpellingBeeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeApp.swift; sourceTree = "<group>"; };
 		1CEC94732D5954710099DD07 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -59,6 +61,10 @@
 		1CEC948C2D5954740099DD07 /* SpellingBeeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeUITests.swift; sourceTree = "<group>"; };
 		1CEC948E2D5954740099DD07 /* SpellingBeeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeUITestsLaunchTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1CD612DB2D82B8990006FEDF /* sounds */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = sounds; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1CEC946B2D5954710099DD07 /* Frameworks */ = {
@@ -110,7 +116,9 @@
 		1CEC94702D5954710099DD07 /* SpellingBee */ = {
 			isa = PBXGroup;
 			children = (
-				1C5E0B702D6880DF00CCB9DB /* EWOL-Words.txt */,
+				1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */,
+				1CD612DB2D82B8990006FEDF /* sounds */,
+				1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */,
 				1CEC94712D5954710099DD07 /* SpellingBeeApp.swift */,
 				1CEC94732D5954710099DD07 /* ContentView.swift */,
 				1CEC94752D5954740099DD07 /* Assets.xcassets */,
@@ -163,6 +171,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1CD612DB2D82B8990006FEDF /* sounds */,
 			);
 			name = SpellingBee;
 			packageProductDependencies = (
@@ -261,9 +272,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1CD612DD2D82BDF40006FEDF /* 1000-most-common-words.txt in Resources */,
 				1CEC94792D5954740099DD07 /* Preview Assets.xcassets in Resources */,
 				1CEC94762D5954740099DD07 /* Assets.xcassets in Resources */,
-				1C5E0B712D6880DF00CCB9DB /* EWOL-Words.txt in Resources */,
+				1C5E0B712D6880DF00CCB9DB /* EOWL-Words.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +470,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SpellingBee/Preview Content\"";
+				DEVELOPMENT_TEAM = S729G4A582;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -486,6 +499,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SpellingBee/Preview Content\"";
+				DEVELOPMENT_TEAM = S729G4A582;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
