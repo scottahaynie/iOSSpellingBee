@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C3558972D7049280071A067 /* Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558962D7049280071A067 /* Modal.swift */; };
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
 		1C5E0B712D6880DF00CCB9DB /* EOWL-Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */; };
 		1C5E0B742D6892B700CCB9DB /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 1C5E0B732D6892B700CCB9DB /* AlertToast */; };
@@ -43,7 +42,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1C3558962D7049280071A067 /* Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modal.swift; sourceTree = "<group>"; };
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "EOWL-Words.txt"; sourceTree = "<group>"; };
 		1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Honeycomb.swift; sourceTree = "<group>"; };
@@ -126,7 +124,6 @@
 				1C64B9402D6855AB007AFF39 /* Trie.swift */,
 				1C64B9422D685910007AFF39 /* Util.swift */,
 				1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */,
-				1C3558962D7049280071A067 /* Modal.swift */,
 				1C3558982D719D700071A067 /* GameState.swift */,
 			);
 			path = SpellingBee;
@@ -302,7 +299,6 @@
 			files = (
 				1C3558992D719D700071A067 /* GameState.swift in Sources */,
 				1C64B9412D6855AB007AFF39 /* Trie.swift in Sources */,
-				1C3558972D7049280071A067 /* Modal.swift in Sources */,
 				1CEC94742D5954710099DD07 /* ContentView.swift in Sources */,
 				1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */,
 				1CEC94722D5954710099DD07 /* SpellingBeeApp.swift in Sources */,

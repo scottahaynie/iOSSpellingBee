@@ -31,6 +31,7 @@ extension String {
 struct HexagonShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
+        // bounding rect is already centered, so center of rect is the center
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let sideLength = min(rect.width, rect.height) / 2
         for i in 0..<6 {
@@ -84,11 +85,12 @@ struct HexagonButton: View {
                 .frame(width: self.rect.width, height: self.rect.height)
                 .background(HexagonShape().fill(self.backgroundColor))
                 .overlay(HexagonShape().stroke(Color.white, lineWidth: 2))
+//                .frame(width: self.rect.width, height: self.rect.height)
                 .shadow(radius: 5)
         }
         //.buttonStyle(PlainButtonStyle()) // Removes default button styling
         .buttonStyle(ScaleButtonStyle())
-        .position(self.rect.origin)
+        .position(self.rect.origin) // positions the CENTER of the view
         //.animation(.easeInOut(duration: 1.0), value: self.rect.minX)
     }
 }
@@ -114,6 +116,7 @@ struct Honeycomb: View {
     ]
 
     private static func getHexagonPoint(i: Int, x: CGFloat, y: CGFloat, size: CGFloat) -> CGPoint {
+        // 0-5 clockwise. 0 = lower-right, 5 = upper-right
         let angle = CGFloat(i) * CGFloat.pi * 2 / 6 + (CGFloat.pi / 6)
         return CGPoint(x: x + cos(angle) * size * 1.9, y: y + sin(angle) * size * 1.9)
     }
@@ -141,16 +144,16 @@ struct Honeycomb: View {
         // rect is the center hexagon rect
         ZStack {
             ForEach(0..<6, id: \.self) { index in
-                HexagonButton(
-                    text: self.outerLetters.isEmpty ? "" : String(self.outerLetters[index]),
-                    rect: CGRect(origin: positions[index], size: self.rect.size),
-                    textColor: Color.white,
-                    backgroundColor: Color.blue,
-                    { text in
-                        logger.debug("hexagon button tapped \(index)")
-                        self.onTap(text, false)
-                    }
-                )
+               HexagonButton(
+                   text: self.outerLetters.isEmpty ? "" : String(self.outerLetters[index]),
+                   rect: CGRect(origin: positions[index], size: self.rect.size),
+                   textColor: Color.white,
+                   backgroundColor: Color.blue,
+                   { text in
+                       logger.debug("hexagon button tapped \(index)")
+                       self.onTap(text, false)
+                   }
+               )
             }
             HexagonButton(
                 text: centerLetter,
@@ -165,18 +168,23 @@ struct Honeycomb: View {
         }
     }
     var body: some View {
-        ZStack {
-            createHexagonButtons(isShuffling: isShuffling)
-        }
-        .onAppear() {
-            initPositions()
-        }
-        .onChange(of: isShuffling) { oldValue, newValue in
-            if newValue {
-                withAnimation(.bouncy(duration: 1.0)) {
-                    shufflePositions()
+        GeometryReader { geometry in
+            ZStack {
+                createHexagonButtons(isShuffling: isShuffling)
+            }
+            .onAppear {
+                initPositions()
+            }
+            .onChange(of: geometry.size) { oldSize, newSize in
+                initPositions()
+            }
+            .onChange(of: isShuffling) { oldValue, newValue in
+                if newValue {
+                    withAnimation(.bouncy(duration: 1.0)) {
+                        shufflePositions()
+                    }
+                    isShuffling = false
                 }
-                isShuffling = false
             }
         }
     }
@@ -188,14 +196,19 @@ struct Honeycomb: View {
         Button("Shuffle") {
             isShuffling = true
         }
-        Honeycomb(
-            outerLetters: "ABCDEF",
-            centerLetter: "O",
-            rect: CGRect(x: 200, y: 200, width: 100, height: 100),
-            isShuffling: $isShuffling, //.constant(false),
-            onTap: { text, isCenter in
-                print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
-            }
-        )
+        GeometryReader { geo in
+            Honeycomb(
+                outerLetters: "ABCDEF",
+                centerLetter: "O",
+                rect: CGRect(x: geo.size.width / 2,
+                             y: geo.size.height / 2,
+                             width: 100,
+                             height: 100),
+                isShuffling: $isShuffling, //.constant(false),
+                onTap: { text, isCenter in
+                    print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
+                }
+            )
+        }
     }
 }

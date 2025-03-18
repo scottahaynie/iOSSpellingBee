@@ -10,17 +10,14 @@
 // polish new game modal
 // look for panagrams - alter points/ranks calcs based on it
 // fix bug where some hexagons don't animate, they just snap into their new position
-// fix modal bugs: modal moves things in the background when it appears
-//  - animates center hexagon (and button row) when new game modal dismissed
-//  - Cam: consider using a Sheet for this
 // debug menu: specify letters to use (for comparing with NYT app)
 // investigate using SwiftData for persistence: https://developer.apple.com/xcode/swiftdata/
 // move game business logic into separate class with its own unit tests
 // play sounds on button presses / word found
 //  - https://www.hackingwithswift.com/forums/100-days-of-swiftui/trying-to-play-sound-when-pressing-button/28226
 // loading indicator while new game getting created
-// show last found words underneath points
-// when last found words tapped, reveal all of them
+// show last found words underneath points (in recency order)
+// when last found words tapped, reveal all of them (in alpha order)
 // popup new game modal automatically (if no saved game)
 // create nav bar at top: title, new game and settings buttons
 // put New Game into menu (rather than button) -- or an image button at the top
@@ -33,11 +30,14 @@
 // find better kids words file -- it's too limited, doesn't have a lot of words
 //
 // FUTURE:
-// animate when graduated to new level! throw confetti on screen
+// animate when graduated to new level! throw confetti on screen - dancing gorilla
 // save game history -- maybe in top bar, chart icon -- each game keyed on date/time created
 // dark mode
 //
 // DONE:
+// DONE fix modal bugs: modal moves things in the background when it appears
+//  - animates center hexagon (and button row) when new game modal dismissed
+//  - Cam: consider using a Sheet for this
 // DONE pointing system / grades
 // DONE allow keystrokes for quick testing (focus, but it's disabled)
 // DONE Nolan Mode: allow 3-letter words and easier dictionary.
@@ -96,6 +96,7 @@ struct ContentView: View {
     @State private var isShuffling = false
     @State private var showHint = false
     @State private var showNewGameModal = false
+    @State private var showWordsFound = false
     
     @FocusState private var textFocused: Bool
 
@@ -233,6 +234,18 @@ struct ContentView: View {
             try? await game.save()
         }
     }
+    
+    private func getWordsByRecent() -> [String] {
+        return game.guessedWords.reversed()//.joined(separator: " ")
+//        var wordStr = ""
+//        for word in game.guessedWords.reversed() {
+//            wordStr += word + " "
+//        }
+//        return wordStr
+    }
+    private func getWordsByAlpha() -> [String] {
+        return game.guessedWords.sorted()//.joined(separator: " ")
+    }
 
     //TODO: to customize the look and feel of the gauge
     struct CustomGaugeStyle: GaugeStyle {
@@ -242,66 +255,122 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack {
-            VStack {
-                if !game.outerLetters.isEmpty {
-                    //Gauge(value: Double(game.guessedWords.count), in: 0...Double(game.remainingWords.count)) {
-                    Gauge(value: Double(game.guessedPoints), in: 0...Double(game.possiblePoints)) {
-                        Text("Progress")
-                    } currentValueLabel: {
-                        //Text("\(game.guessedWords.count)")
-                        Text("\(game.guessedPoints)")
-                    } minimumValueLabel: {
-                        //Text(game.guessedWords.count < 2 ? "Beginner" : "Good")
-                        Text(game.rank.rawValue)
-                        //                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
-                            .bold()
-                            .foregroundStyle(.blue)
-                        //.foregroundStyle(
-                        //.shadow(color: .green, radius: 3)
-                        //.foregroundStyle(.shadow(.drop(radius: 3)))
-                    } maximumValueLabel: {
-                        //Text("\(game.remainingWords.count)")
-                        Text("\(game.possiblePoints)")
-                    }
-                    .gaugeStyle(.accessoryLinear)
-                    .frame(height: 22)
-                    
-                    //TODO: if gauge can show value underneath, remove this
-                    Text("\(game.guessedWords.count) / \(game.remainingWords.count + game.guessedWords.count) Found (\(game.guessedPoints) points)")
-                        .frame(height: 30)
-                } else {
-                    Spacer(minLength: 30)
-                    Text("Tap button below to start")
-                        .frame(height: 30)
+        VStack {
+            //** TITLE BAR
+            HStack {
+                // Title
+                Text("Spelling Bee")
+                    .font(.title)
+                    .bold()
+                    .padding(.horizontal, 8)
+                Spacer()
+                // New Game Button
+                Button {
+                    showNewGameModal.toggle()
+                } label: {
+                    Image(systemName: "arrow.counterclockwise.circle")
+                        .resizable()
+                        .padding(.all, 8)
+                        .frame(width: 45, height: 45)
                 }
-                HStack {
-                    // New Game Button
-                    Button("New Game") {
-                        showNewGameModal.toggle()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                    // Settings Button
-                    Menu {
-                        Button("Save Game", action: {
-                            saveGame()
-                        })
-                        Button("Load Game", action: {
-                            logger.debug("load game")
-                        })
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(.all, 10)
-                            .frame(width: 40, height: 40)
-//                            Label("", systemImage: "ellipsis.circle")
-//                                .frame(height: 40)
-                    }
+                // Settings Button
+                Button {
+                } label: {
+                    Image(systemName: "gearshape")
+                        .resizable()
+                        .padding(.all, 8)
+                        .frame(width: 45, height: 45)
                 }
+            }
+            .padding(.horizontal, 5)
+            .background(.blue.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal, -5)
+
+            //** PROGRESS GAUGE
+            if !game.outerLetters.isEmpty {
+                //Gauge(value: Double(game.guessedWords.count), in: 0...Double(game.remainingWords.count)) {
+                Gauge(value: Double(game.guessedPoints), in: 0...Double(game.possiblePoints)) {
+                    Text("Progress")
+                } currentValueLabel: {
+                    //Text("\(game.guessedWords.count)")
+                    Text("\(game.guessedPoints)")
+                } minimumValueLabel: {
+                    //Text(game.guessedWords.count < 2 ? "Beginner" : "Good")
+                    Text(game.rank.rawValue)
+                    //                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
+                        .bold()
+                        .foregroundStyle(.blue)
+                    //.foregroundStyle(
+                    //.shadow(color: .green, radius: 3)
+                    //.foregroundStyle(.shadow(.drop(radius: 3)))
+                } maximumValueLabel: {
+                    //Text("\(game.remainingWords.count)")
+                    Text("\(game.possiblePoints)")
+                }
+                .gaugeStyle(.accessoryLinear)
+                .frame(height: 22)
                 
-                Spacer(minLength: 70)
+                //TODO: if gauge can show value underneath, remove this
+                Text("\(game.guessedWords.count) / \(game.remainingWords.count + game.guessedWords.count) Found (\(game.guessedPoints) points)")
+                    .frame(height: 30)
+            }
+
+            // Words Found
+            Button {
+                showWordsFound.toggle()
+            } label: {
+                VStack {
+                    HStack {
+                        Text(showWordsFound
+                             ? "You found \(game.guessedWords.count) words:"
+                             : getWordsByRecent().joined(separator: " "))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.all, 8)
+                        Spacer()
+                        Image(systemName: showWordsFound ? "chevron.up" : "chevron.down")
+                            .padding(.all, 8)
+                    }
+                    if (showWordsFound) {
+                        ScrollView {
+                            HStack(alignment: .top, spacing: 8) {
+                                // First column
+                                let words = getWordsByAlpha()
+                                let midpoint = words.count / 2
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(words[..<midpoint], id: \.self) { word in
+                                        Text(word)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 8)
+                                    }
+                                }
+                                
+                                // Second column
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(words[midpoint...], id: \.self) { word in
+                                        Text(word)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 8)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: showWordsFound ? .infinity : nil,
+                   maxHeight: showWordsFound ? .infinity : nil,
+                   alignment: .top)
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.gray)
+            )
+            
+            if showWordsFound { Spacer() } else { Spacer(minLength: 70) }
+
+            if (!showWordsFound) {
+                // Word Entry
                 TextField(
                     "", //"Enter a word",
                     text: $game.enteredWord
@@ -312,7 +381,7 @@ struct ContentView: View {
                 .autocorrectionDisabled(true)
                 .disableAutocorrection(true)
                 .textContentType(.name)
-//                    .focused($wordEntryFocused)
+                //                    .focused($wordEntryFocused)
                 .multilineTextAlignment(.center)
                 .onSubmit {
                     onSubmit()
@@ -330,17 +399,17 @@ struct ContentView: View {
                     }
                 }
                 
-                // Matching words hint
+                // Matching Words Hint
                 if showHint {
                     Text(game.numWordsWithPrefix == -1 ? " " :
                             "\(game.numWordsWithPrefix) matching words"
                     )
                     //.transition(.opacity.combined(with: .move(edge: .leading)))
                     .transition(.opacity)  // .blurReplace
-                    .frame(height: 40)
+                    .frame(height: 30)
                     .padding()
                 } else {
-                    Button("Show hint") {
+                    Button {
                         withAnimation() {
                             showHint = true
                         }
@@ -349,11 +418,15 @@ struct ContentView: View {
                                 showHint = false
                             }
                         }
+                    } label: {
+                        Text("Show hint")
+                            .frame(height: 30)
                     }
                     .disabled(showHint || game.numWordsWithPrefix == -1)
                     .transition(.opacity)
                     .buttonStyle(.bordered)
-                    .frame(height: 40)
+                    // need frame/padding too so it's same height as "2 matching words" Text
+                    .frame(height: 30)
                     .padding()
                 }
                 
@@ -419,58 +492,81 @@ struct ContentView: View {
                     } label: {
                         Text("Enter")
                             .frame(width: 80, height: 50)
+                            .bold()
                     }
                     .disabled(game.outerLetters.isEmpty)
                     .buttonStyle(.borderedProminent)
                 }
             }
-            .padding()
-            
-            // Present a toast if needed
-            .toast(isPresenting: $showToast, duration: 1.5, alert: {
-                switch (toastType) {
-                case ToastType.toastFound:
-                    return AlertToast(displayMode: .hud, type: .complete(Color.white), title: getRandomCompliment(), style: .style(backgroundColor: Color.green, titleColor: Color.white))
-                case ToastType.toastTooShort:
-                    return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Too short", style: .style(backgroundColor: Color.red, titleColor: Color.white))
-                case ToastType.toastNotFound:
-                    return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Nope", style: .style(backgroundColor: Color.red, titleColor: Color.white))
-                case ToastType.toastAlreadyChosen:
-                    return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Already found", style: .style(backgroundColor: Color.red, titleColor: Color.white))
-                case ToastType.toastMissingCenterLetter:
-                    return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Missing center letter", style: .style(backgroundColor: Color.red, titleColor: Color.white))
-                }
-            }, completion: {
-                logger.debug("toast dismissed")
-            })
-            
-            .task( {
-                //UISegmentedControl.appearance().backgroundColor = .red //.tintColor.withAlphaComponent(0.2)
-                //UISegmentedControl.appearance().setContentHuggingPriority(.defaultLow, for: .vertical)
-            })
-
-            // from https://blog.stackademic.com/swiftui-popup-dialog-this-is-also-how-you-can-add-custom-view-transition-animation-f7140431ec5f
-            if showNewGameModal {
-                Modal(showModal: $showNewGameModal) {
-                    VStack {
-                        Picker("Difficulty", selection: $game.difficultyLevel) {
-                            Text("Kids").tag(GameState.DifficultyLevel.kids)
-                            Text("Easy").tag(GameState.DifficultyLevel.easy)
-                            Text("Medium").tag(GameState.DifficultyLevel.medium)
-                            Text("Hard").tag(GameState.DifficultyLevel.hard)
-                        }
-                        .frame(height: 50)
-                        .pickerStyle(.segmented)
-                        .padding()
-                        Button("Start Game") {
-                            showNewGameModal = false
-                            restartGame()
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                }
-            }
         }
+        .padding()
+        
+        // Present a toast if needed
+        .toast(isPresenting: $showToast, duration: 1.5, alert: {
+            switch (toastType) {
+            case ToastType.toastFound:
+                return AlertToast(displayMode: .hud, type: .complete(Color.white), title: getRandomCompliment(), style: .style(backgroundColor: Color.green, titleColor: Color.white))
+            case ToastType.toastTooShort:
+                return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Too short", style: .style(backgroundColor: Color.red, titleColor: Color.white))
+            case ToastType.toastNotFound:
+                return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Nope", style: .style(backgroundColor: Color.red, titleColor: Color.white))
+            case ToastType.toastAlreadyChosen:
+                return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Already found", style: .style(backgroundColor: Color.red, titleColor: Color.white))
+            case ToastType.toastMissingCenterLetter:
+                return AlertToast(displayMode: .hud, type: .error(Color.white), title: "Missing center letter", style: .style(backgroundColor: Color.red, titleColor: Color.white))
+            }
+        }, completion: {
+            logger.debug("toast dismissed")
+        })
+        
+        .task( {
+            //UISegmentedControl.appearance().backgroundColor = .red //.tintColor.withAlphaComponent(0.2)
+            //UISegmentedControl.appearance().setContentHuggingPriority(.defaultLow, for: .vertical)
+        })
+
+        .sheet(isPresented: $showNewGameModal, content: {
+            VStack {
+                ZStack {
+                    Text("New Game")
+                        .font(.title)
+                    HStack {
+                        Spacer()
+                        Button {
+                            showNewGameModal = false
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.all, 10)
+                                .frame(width: 50, height: 50)
+                        }
+                    }
+                    .padding(.top, 5)
+                }
+                Spacer()
+
+                Picker("Difficulty", selection: $game.difficultyLevel) {
+                    Text("Kids").tag(GameState.DifficultyLevel.kids)
+                    Text("Easy").tag(GameState.DifficultyLevel.easy)
+                    Text("Medium").tag(GameState.DifficultyLevel.medium)
+                    Text("Hard").tag(GameState.DifficultyLevel.hard)
+                }
+                .frame(height: 50)
+                .pickerStyle(.segmented)
+                .padding()
+                Spacer()
+                Button {
+                    showNewGameModal = false
+                    restartGame()
+                } label: {
+                    Text("Start Game")
+                        .frame(height: 50)
+                        .padding(.horizontal, 10)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .presentationDetents([.height(300)])
+        })
     }
 }
 
@@ -480,6 +576,7 @@ struct ContentView: View {
         let _ = {
             game.outerLetters = "CTDREO"
             game.centerLetter = "B"
+            game.guessedWords = ["hello", "this", "word", "great", "again", "amazing", "another", "telephone"]
         }()
         ContentView(game: game, dictionary: Trie(), kidsDictionary: Trie())
     }
