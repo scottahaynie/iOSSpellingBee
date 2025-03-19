@@ -17,14 +17,9 @@
 //  - https://www.hackingwithswift.com/forums/100-days-of-swiftui/trying-to-play-sound-when-pressing-button/28226
 // loading indicator while new game getting created
 // popup new game modal automatically (if no saved game)
-// progress bar:
-//  - tap on progress bar reveals rankings
-//  - show tick marks on progress bar for each rank
-//  - show progress bar current value
+// tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
-// move colors into constants
 // find better kids words file -- it's too limited, doesn't have a lot of words
-// difficulty level - just adjust scoring instead of adjusting # possibilities
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -32,11 +27,14 @@
 // dark mode
 //
 // DONE:
-// DONE settings screen with hint toggle
 // DONE show last found words underneath points (in recency order)
 // DONE when last found words tapped, reveal all of them (in alpha order)
-// DONE create nav bar at top: title, new game and settings buttons
 // DONE put New Game into menu (rather than button) -- or an image button at the top
+// DONE create nav bar at top: title, new game and settings buttons
+// DONE move colors into constants
+// DONE - show tick marks on progress bar for each rank
+// DONE - show progress bar current value
+// DONE capitalize words found
 // DONE fix modal bugs: modal moves things in the background when it appears
 //  - animates center hexagon (and button row) when new game modal dismissed
 //  - Cam: consider using a Sheet for this
@@ -58,7 +56,7 @@
 // DONE   present modal on New Game
 
 // iPhone 16 Pro simulator UserDefaults location:
-// userdefaults.sh SpellingBee.plist
+// /Users/scotthay/Library/Developer/CoreSimulator/Devices/D6528BCC-3093-4B09-A01A-03A7253FB37E/data/Containers/Data/Application/F12CF147-50E3-4861-A071-1A4FB9A02B43/Library
 
 import SwiftUI
 import AlertToast
@@ -107,6 +105,7 @@ struct ContentView: View {
 
     let VOWELS = ["a","e","i","o","u"]
     let CONS = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
+    let PADDING_HORIZONTAL = 8.0
 
     private func getRandomCompliment() -> String {
         return ["So cool!",
@@ -242,22 +241,10 @@ struct ContentView: View {
     }
     
     private func getWordsByRecent() -> [String] {
-        return game.guessedWords.reversed()//.joined(separator: " ")
-//        var wordStr = ""
-//        for word in game.guessedWords.reversed() {
-//            wordStr += word + " "
-//        }
-//        return wordStr
+        return game.guessedWords.reversed().compactMap { $0.capitalized }
     }
     private func getWordsByAlpha() -> [String] {
-        return game.guessedWords.sorted()//.joined(separator: " ")
-    }
-
-    //TODO: to customize the look and feel of the gauge
-    struct CustomGaugeStyle: GaugeStyle {
-        func makeBody(configuration: Configuration) -> some View {
-            
-        }
+        return game.guessedWords.sorted().compactMap { $0.capitalized }
     }
 
     var body: some View {
@@ -268,7 +255,7 @@ struct ContentView: View {
                 Text("Spelling Bee")
                     .font(.title)
                     .bold()
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, PADDING_HORIZONTAL)
                 Spacer()
                 // New Game Button
                 Button {
@@ -276,33 +263,30 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "arrow.counterclockwise.circle")
                         .resizable()
-                        .padding(.all, 8)
+                        .padding(.all, PADDING_HORIZONTAL)
                         .frame(width: 45, height: 45)
                 }
                 // Settings Button
                 Button {
-                    showSettingsModal.toggle()
                 } label: {
                     Image(systemName: "gearshape")
                         .resizable()
-                        .padding(.all, 8)
+                        .padding(.all, PADDING_HORIZONTAL)
                         .frame(width: 45, height: 45)
                 }
             }
             .padding(.horizontal, 5)
-            .background(.blue.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+            //.background(.blue.opacity(0.3).gradient, in: RoundedRectangle(cornerRadius: 8))
+            .background(.linearGradient(colors: [AppColors.colorTitle.opacity(0.2), AppColors.colorTitle.opacity(0.5)], startPoint: .top, endPoint: .bottom), in: RoundedRectangle(cornerRadius: 8))
             .padding(.horizontal, -5)
 
             //** PROGRESS GAUGE
             if !game.outerLetters.isEmpty {
-                //Gauge(value: Double(game.guessedWords.count), in: 0...Double(game.remainingWords.count)) {
                 Gauge(value: Double(game.guessedPoints), in: 0...Double(game.possiblePoints)) {
                     Text("Progress")
                 } currentValueLabel: {
-                    //Text("\(game.guessedWords.count)")
                     Text("\(game.guessedPoints)")
                 } minimumValueLabel: {
-                    //Text(game.guessedWords.count < 2 ? "Beginner" : "Good")
                     Text(game.rank.rawValue)
                     //                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
                         .bold()
@@ -311,15 +295,13 @@ struct ContentView: View {
                     //.shadow(color: .green, radius: 3)
                     //.foregroundStyle(.shadow(.drop(radius: 3)))
                 } maximumValueLabel: {
-                    //Text("\(game.remainingWords.count)")
                     Text("\(game.possiblePoints)")
                 }
-                .gaugeStyle(.accessoryLinear)
-                .frame(height: 22)
-                
-                //TODO: if gauge can show value underneath, remove this
-                Text("\(game.guessedWords.count) / \(game.remainingWords.count + game.guessedWords.count) Found (\(game.guessedPoints) points)")
-                    .frame(height: 30)
+                .gaugeStyle(SpellingBeeGaugeStyle())
+                .onTapGesture {
+                    print("progress gauge tapped")
+                }
+                .padding(.vertical)
             }
 
             // Words Found
@@ -333,10 +315,10 @@ struct ContentView: View {
                              : getWordsByRecent().joined(separator: " "))
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .padding(.all, 8)
+                        .padding(.all, PADDING_HORIZONTAL)
                         Spacer()
                         Image(systemName: showWordsFound ? "chevron.up" : "chevron.down")
-                            .padding(.all, 8)
+                            .padding(.all, PADDING_HORIZONTAL)
                     }
                     if (showWordsFound) {
                         ScrollView {
@@ -351,7 +333,7 @@ struct ContentView: View {
                                             .padding(.horizontal, 8)
                                     }
                                 }
-                                
+
                                 // Second column
                                 VStack(alignment: .leading, spacing: 4) {
                                     ForEach(words[midpoint...], id: \.self) { word in
@@ -361,7 +343,7 @@ struct ContentView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal, 8)
+                            .padding(.horizontal, PADDING_HORIZONTAL)
                         }
                     }
                 }
@@ -373,13 +355,12 @@ struct ContentView: View {
                 RoundedRectangle(cornerRadius: 5)
                     .stroke(Color.gray)
             )
+            .padding(.vertical)
             
-            if showWordsFound { Spacer() } else { Spacer(minLength: 70) }
-
             if (!showWordsFound) {
                 // Word Entry
                 TextField(
-                    "", //"Enter a word",
+                    "",
                     text: $game.enteredWord
                 )
                 .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
@@ -399,7 +380,7 @@ struct ContentView: View {
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(Color.gray)
                 )
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 0)//PADDING_HORIZONTAL)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
                         textFocused = true
@@ -457,7 +438,7 @@ struct ContentView: View {
                         }
                     )//.border(.red)
                 }
-                
+
                 // Button Row
                 HStack {
                     // Delete Button
@@ -508,7 +489,7 @@ struct ContentView: View {
                 }
             }
         }
-        .padding()
+        .padding(.all, 12 + PADDING_HORIZONTAL)
         
         // Present a toast if needed
         .toast(isPresenting: $showToast, duration: 1.5, alert: {
@@ -615,6 +596,8 @@ struct ContentView: View {
             game.outerLetters = "CTDREO"
             game.centerLetter = "B"
             game.guessedWords = ["hello", "this", "word", "great", "again", "amazing", "another", "telephone"]
+            game.guessedPoints = 123
+            game.possiblePoints = 150
         }()
         ContentView(game: game, dictionary: Trie(), kidsDictionary: Trie())
     }

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
+		1C3631682D8AB5160049D434 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631672D8AB5120049D434 /* AppColors.swift */; };
+		1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */; };
 		1C5E0B712D6880DF00CCB9DB /* EOWL-Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */; };
 		1C5E0B742D6892B700CCB9DB /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 1C5E0B732D6892B700CCB9DB /* AlertToast */; };
 		1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */; };
@@ -43,6 +45,8 @@
 
 /* Begin PBXFileReference section */
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		1C3631672D8AB5120049D434 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeGauge.swift; sourceTree = "<group>"; };
 		1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "EOWL-Words.txt"; sourceTree = "<group>"; };
 		1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Honeycomb.swift; sourceTree = "<group>"; };
 		1C64B9402D6855AB007AFF39 /* Trie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
@@ -114,6 +118,7 @@
 		1CEC94702D5954710099DD07 /* SpellingBee */ = {
 			isa = PBXGroup;
 			children = (
+				1C3631672D8AB5120049D434 /* AppColors.swift */,
 				1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */,
 				1CD612DB2D82B8990006FEDF /* sounds */,
 				1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */,
@@ -125,6 +130,7 @@
 				1C64B9422D685910007AFF39 /* Util.swift */,
 				1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */,
 				1C3558982D719D700071A067 /* GameState.swift */,
+				1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */,
 			);
 			path = SpellingBee;
 			sourceTree = "<group>";
@@ -299,9 +305,11 @@
 			files = (
 				1C3558992D719D700071A067 /* GameState.swift in Sources */,
 				1C64B9412D6855AB007AFF39 /* Trie.swift in Sources */,
+				1C3631682D8AB5160049D434 /* AppColors.swift in Sources */,
 				1CEC94742D5954710099DD07 /* ContentView.swift in Sources */,
 				1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */,
 				1CEC94722D5954710099DD07 /* SpellingBeeApp.swift in Sources */,
+				1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */,
 				1C64B9432D685910007AFF39 /* Util.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

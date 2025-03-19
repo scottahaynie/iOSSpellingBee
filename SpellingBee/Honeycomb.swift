@@ -8,19 +8,6 @@
 import SwiftUI
 import OSLog
 
-// allows specifying colors by hex. eg. Color(hex: 44AAFF)
-extension Color {
-    init(hex: Int, opacity: Double = 1) {
-        self.init(
-            .sRGB,
-            red: Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >> 08) & 0xff) / 255,
-            blue: Double((hex >> 00) & 0xff) / 255,
-            opacity: opacity
-        )
-    }
-}
-
 // allows for s[5] on Strings
 extension String {
     subscript(i: Int) -> Character {
@@ -148,9 +135,8 @@ struct Honeycomb: View {
                    text: self.outerLetters.isEmpty ? "" : String(self.outerLetters[index]),
                    rect: CGRect(origin: positions[index], size: self.rect.size),
                    textColor: Color.white,
-                   backgroundColor: Color.blue,
+                   backgroundColor: AppColors.hexagon,
                    { text in
-                       logger.debug("hexagon button tapped \(index)")
                        self.onTap(text, false)
                    }
                )
@@ -159,9 +145,8 @@ struct Honeycomb: View {
                 text: centerLetter,
                 rect: self.rect,
                 textColor: Color.white,
-                backgroundColor: Color.indigo,
+                backgroundColor: AppColors.centerHexagon,
                 { text in
-                    logger.debug("center hexagon tapped")
                     self.onTap(text, true)
                 }
             )
