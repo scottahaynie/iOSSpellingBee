@@ -27,6 +27,7 @@
 // dark mode
 //
 // DONE:
+// DONE prevent keyboard from popping up
 // DONE show last found words underneath points (in recency order)
 // DONE when last found words tapped, reveal all of them (in alpha order)
 // DONE put New Game into menu (rather than button) -- or an image button at the top
@@ -268,6 +269,7 @@ struct ContentView: View {
                 }
                 // Settings Button
                 Button {
+                    showSettingsModal.toggle()
                 } label: {
                     Image(systemName: "gearshape")
                         .resizable()
@@ -356,37 +358,65 @@ struct ContentView: View {
                     .stroke(Color.gray)
             )
             .padding(.vertical)
+            Spacer(minLength: 40)
             
             if (!showWordsFound) {
                 // Word Entry
-                TextField(
-                    "",
-                    text: $game.enteredWord
-                )
-                .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
-                .foregroundColor(.black)
-                .textInputAutocapitalization(.characters)
-                .autocorrectionDisabled(true)
-                .disableAutocorrection(true)
-                .textContentType(.name)
+                // TextField shows cursor, but couldn't prevent keyboard from popping up
+//                TextField(
+//                    "",
+//                    text: $game.enteredWord
+//                )
+//                .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
+//                .foregroundColor(.black)
+//                .textInputAutocapitalization(.characters)
+//                .autocorrectionDisabled(true)
+//                .disableAutocorrection(true)
+//                .textContentType(.name)
+//                //                    .focused($wordEntryFocused)
+//                .multilineTextAlignment(.center)
+//                .onSubmit {
+//                    onSubmit()
+//                }
+//                //.disabled(true)
+//                .focused($textFocused)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 5)
+//                        .stroke(Color.gray)
+//                )
+//                .padding(.horizontal, 0)//PADDING_HORIZONTAL)
+//                .onAppear {
+//                    DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
+//                        textFocused = true
+//                    }
+//                }
+//
+                Text(game.enteredWord)
+                    .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
+                    .foregroundColor(.black)
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled(true)
+                    .disableAutocorrection(true)
+                    .textContentType(.name)
                 //                    .focused($wordEntryFocused)
-                .multilineTextAlignment(.center)
-                .onSubmit {
-                    onSubmit()
-                }
-                //.disabled(true)
-                .focused($textFocused)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(Color.gray)
-                )
-                .padding(.horizontal, 0)//PADDING_HORIZONTAL)
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-                        textFocused = true
+                    .multilineTextAlignment(.center)
+                    .onSubmit {
+                        onSubmit()
                     }
-                }
-                
+                //.disabled(true)
+                    .focused($textFocused)
+                    .frame(maxWidth: .infinity, maxHeight: 60)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Color.gray)
+                    )
+                    .padding(.horizontal, 0)//PADDING_HORIZONTAL)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
+                            textFocused = true
+                        }
+                    }
+
                 // Matching Words Hint
                 if hintsEnabled {
                     if showHint {
@@ -419,7 +449,7 @@ struct ContentView: View {
                         .padding()
                     }
                 }
-                
+
                 // Honeycomb
                 GeometryReader { geometryHoneycomb in
                     Honeycomb(
@@ -438,6 +468,7 @@ struct ContentView: View {
                         }
                     )//.border(.red)
                 }
+                .frame(height: 300)
 
                 // Button Row
                 HStack {
@@ -487,6 +518,7 @@ struct ContentView: View {
                     .disabled(game.outerLetters.isEmpty)
                     .buttonStyle(.borderedProminent)
                 }
+                .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
         .padding(.all, 12 + PADDING_HORIZONTAL)

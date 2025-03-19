@@ -11,7 +11,7 @@ struct SpellingBeeGaugeStyle: GaugeStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack {
             configuration.minimumValueLabel
-            //ProgressView(value: configuration.value)
+                .padding(.trailing, 15)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 5)
@@ -29,7 +29,6 @@ struct SpellingBeeGaugeStyle: GaugeStyle {
                                     .offset(x: geo.size.width * tick)
                                     .foregroundStyle(.black)
                             }
-                            //.padding(.horizontal, 5)
                     }
                     RoundedRectangle(cornerRadius: 5)
                         .frame(width: geo.size.width * configuration.value, height: 5)
@@ -54,12 +53,12 @@ struct SpellingBeeGaugeStyle: GaugeStyle {
 }
 
 #Preview {
-    Gauge(value: 158.0, in: 0.0...300.0) {
+    Gauge(value: 0, in: 0.0...300.0) {
         Text("Progress")
     } currentValueLabel: {
-        Text("158")
+        Text("0")
     } minimumValueLabel: {
-        Text("Genius")
+        Text("Beginner")
         //                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
             .bold()
             .foregroundStyle(.blue)
