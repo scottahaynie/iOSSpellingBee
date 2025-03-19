@@ -16,11 +16,7 @@
 // play sounds on button presses / word found
 //  - https://www.hackingwithswift.com/forums/100-days-of-swiftui/trying-to-play-sound-when-pressing-button/28226
 // loading indicator while new game getting created
-// show last found words underneath points (in recency order)
-// when last found words tapped, reveal all of them (in alpha order)
 // popup new game modal automatically (if no saved game)
-// create nav bar at top: title, new game and settings buttons
-// put New Game into menu (rather than button) -- or an image button at the top
 // progress bar:
 //  - tap on progress bar reveals rankings
 //  - show tick marks on progress bar for each rank
@@ -28,6 +24,7 @@
 // show points to next rank, underneath progress bar - "6 points to Solid"
 // move colors into constants
 // find better kids words file -- it's too limited, doesn't have a lot of words
+// difficulty level - just adjust scoring instead of adjusting # possibilities
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -35,6 +32,11 @@
 // dark mode
 //
 // DONE:
+// DONE settings screen with hint toggle
+// DONE show last found words underneath points (in recency order)
+// DONE when last found words tapped, reveal all of them (in alpha order)
+// DONE create nav bar at top: title, new game and settings buttons
+// DONE put New Game into menu (rather than button) -- or an image button at the top
 // DONE fix modal bugs: modal moves things in the background when it appears
 //  - animates center hexagon (and button row) when new game modal dismissed
 //  - Cam: consider using a Sheet for this
@@ -56,7 +58,7 @@
 // DONE   present modal on New Game
 
 // iPhone 16 Pro simulator UserDefaults location:
-// /Users/scotthay/Library/Developer/CoreSimulator/Devices/D6528BCC-3093-4B09-A01A-03A7253FB37E/data/Containers/Data/Application/F12CF147-50E3-4861-A071-1A4FB9A02B43/Library
+// userdefaults.sh SpellingBee.plist
 
 import SwiftUI
 import AlertToast
@@ -96,9 +98,12 @@ struct ContentView: View {
     @State private var isShuffling = false
     @State private var showHint = false
     @State private var showNewGameModal = false
+    @State private var showSettingsModal = false
     @State private var showWordsFound = false
     
     @FocusState private var textFocused: Bool
+    
+    @AppStorage("hintsEnabled") private var hintsEnabled = false
 
     let VOWELS = ["a","e","i","o","u"]
     let CONS = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
@@ -201,6 +206,7 @@ struct ContentView: View {
                 game.centerLetter = center.uppercased()
                 game.remainingWords = possibleWords
                 game.guessedWords = []
+                game.guessedPoints = 0
                 game.possiblePoints = calculatePoints(for: possibleWords)
                 updateEnteredWord(text: "")
                 for word in possibleWords {
@@ -275,6 +281,7 @@ struct ContentView: View {
                 }
                 // Settings Button
                 Button {
+                    showSettingsModal.toggle()
                 } label: {
                     Image(systemName: "gearshape")
                         .resizable()
@@ -400,34 +407,36 @@ struct ContentView: View {
                 }
                 
                 // Matching Words Hint
-                if showHint {
-                    Text(game.numWordsWithPrefix == -1 ? " " :
-                            "\(game.numWordsWithPrefix) matching words"
-                    )
-                    //.transition(.opacity.combined(with: .move(edge: .leading)))
-                    .transition(.opacity)  // .blurReplace
-                    .frame(height: 30)
-                    .padding()
-                } else {
-                    Button {
-                        withAnimation() {
-                            showHint = true
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                if hintsEnabled {
+                    if showHint {
+                        Text(game.numWordsWithPrefix == -1 ? " " :
+                                "\(game.numWordsWithPrefix) matching words"
+                        )
+                        //.transition(.opacity.combined(with: .move(edge: .leading)))
+                        .transition(.opacity)  // .blurReplace
+                        .frame(height: 30)
+                        .padding()
+                    } else {
+                        Button {
                             withAnimation() {
-                                showHint = false
+                                showHint = true
                             }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                withAnimation() {
+                                    showHint = false
+                                }
+                            }
+                        } label: {
+                            Text("Show hint")
+                                .frame(height: 30)
                         }
-                    } label: {
-                        Text("Show hint")
-                            .frame(height: 30)
+                        .disabled(showHint || game.numWordsWithPrefix == -1)
+                        .transition(.opacity)
+                        .buttonStyle(.bordered)
+                        // need frame/padding too so it's same height as "2 matching words" Text
+                        .frame(height: 30)
+                        .padding()
                     }
-                    .disabled(showHint || game.numWordsWithPrefix == -1)
-                    .transition(.opacity)
-                    .buttonStyle(.bordered)
-                    // need frame/padding too so it's same height as "2 matching words" Text
-                    .frame(height: 30)
-                    .padding()
                 }
                 
                 // Honeycomb
@@ -564,6 +573,35 @@ struct ContentView: View {
                         .padding(.horizontal, 10)
                 }
                 .buttonStyle(.borderedProminent)
+            }
+            .presentationDetents([.height(300)])
+        })
+
+        .sheet(isPresented: $showSettingsModal, content: {
+            VStack {
+                ZStack {
+                    Text("Settings")
+                        .font(.title)
+                    HStack {
+                        Spacer()
+                        Button {
+                            showSettingsModal = false
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.all, 10)
+                                .frame(width: 50, height: 50)
+                        }
+                    }
+                    .padding(.top, 5)
+                }
+
+                Toggle(isOn: $hintsEnabled, label: {
+                    Text("Enable word match hints")
+                })
+                .padding()
+                Spacer()
             }
             .presentationDetents([.height(300)])
         })
