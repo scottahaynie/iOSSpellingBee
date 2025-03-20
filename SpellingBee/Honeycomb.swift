@@ -66,7 +66,7 @@ struct HexagonButton: View {
                 //.font(Font.custom("Arial", fixedSize: 50))
                 .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
                 //.bold()
-                .contentTransition(.numericText()) // needs withAnimation around newGame
+                //iOS16 .contentTransition(.numericText()) // needs withAnimation around newGame
                 .foregroundColor(self.textColor)
                 .padding()
                 .frame(width: self.rect.width, height: self.rect.height)
@@ -160,10 +160,10 @@ struct Honeycomb: View {
             .onAppear {
                 initPositions()
             }
-            .onChange(of: geometry.size) { oldSize, newSize in
+            .onChange(of: geometry.size) { newSize in
                 initPositions()
             }
-            .onChange(of: isShuffling) { oldValue, newValue in
+            .onChange(of: isShuffling) { newValue in
                 if newValue {
                     withAnimation(.bouncy(duration: 1.0)) {
                         shufflePositions()
@@ -175,25 +175,33 @@ struct Honeycomb: View {
     }
 }
 
-#Preview {
-    @Previewable @State var isShuffling: Bool = false
-    Group {
-        Button("Shuffle") {
-            isShuffling = true
-        }
-        GeometryReader { geo in
-            Honeycomb(
-                outerLetters: "ABCDEF",
-                centerLetter: "O",
-                rect: CGRect(x: geo.size.width / 2,
-                             y: geo.size.height / 2,
-                             width: 100,
-                             height: 100),
-                isShuffling: $isShuffling, //.constant(false),
-                onTap: { text, isCenter in
-                    print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
-                }
-            )
+struct PreviewContainer: View {
+    @State var isShuffling: Bool = false
+    var body: some View {
+        Group {
+            Button("Shuffle") {
+                isShuffling = true
+            }
+            GeometryReader { geo in
+                Honeycomb(
+                    outerLetters: "ABCDEF",
+                    centerLetter: "O",
+                    rect: CGRect(x: geo.size.width / 2,
+                                 y: geo.size.height / 2,
+                                 width: 100,
+                                 height: 100),
+                    isShuffling: $isShuffling, //.constant(false),
+                    onTap: { text, isCenter in
+                        print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
+                    }
+                )
+            }
         }
     }
+}
+
+#Preview {
+    //ios16: we could use this instead of having the PreviewContainer
+//    @Previewable @State var isShuffling: Bool = false
+    PreviewContainer()
 }

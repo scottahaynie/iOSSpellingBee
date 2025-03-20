@@ -10,6 +10,7 @@
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
 		1C3631682D8AB5160049D434 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631672D8AB5120049D434 /* AppColors.swift */; };
 		1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */; };
+		1C36316C2D8BC7360049D434 /* SheetUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C36316B2D8BC7360049D434 /* SheetUIKit.swift */; };
 		1C5E0B712D6880DF00CCB9DB /* EOWL-Words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */; };
 		1C5E0B742D6892B700CCB9DB /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 1C5E0B732D6892B700CCB9DB /* AlertToast */; };
 		1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */; };
@@ -47,6 +48,7 @@
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		1C3631672D8AB5120049D434 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeGauge.swift; sourceTree = "<group>"; };
+		1C36316B2D8BC7360049D434 /* SheetUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetUIKit.swift; sourceTree = "<group>"; };
 		1C5E0B702D6880DF00CCB9DB /* EOWL-Words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "EOWL-Words.txt"; sourceTree = "<group>"; };
 		1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Honeycomb.swift; sourceTree = "<group>"; };
 		1C64B9402D6855AB007AFF39 /* Trie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 		1CEC94702D5954710099DD07 /* SpellingBee */ = {
 			isa = PBXGroup;
 			children = (
+				1C36316B2D8BC7360049D434 /* SheetUIKit.swift */,
 				1C3631672D8AB5120049D434 /* AppColors.swift */,
 				1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */,
 				1CD612DB2D82B8990006FEDF /* sounds */,
@@ -231,7 +234,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					1CEC946D2D5954710099DD07 = {
 						CreatedOnToolsVersion = 15.4;
@@ -311,6 +314,7 @@
 				1CEC94722D5954710099DD07 /* SpellingBeeApp.swift in Sources */,
 				1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */,
 				1C64B9432D685910007AFF39 /* Util.swift in Sources */,
+				1C36316C2D8BC7360049D434 /* SheetUIKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,7 +403,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -456,7 +460,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -527,7 +531,6 @@
 		1CEC94962D5954740099DD07 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -546,7 +549,6 @@
 		1CEC94972D5954740099DD07 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -565,7 +567,6 @@
 		1CEC94992D5954740099DD07 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -582,7 +583,6 @@
 		1CEC949A2D5954740099DD07 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;

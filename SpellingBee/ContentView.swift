@@ -20,6 +20,7 @@
 // tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
 // find better kids words file -- it's too limited, doesn't have a lot of words
+// support iPad layout
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -27,6 +28,7 @@
 // dark mode
 //
 // DONE:
+// DONE make sure game will build/work on Nolan's iPad (iOS 15.8)
 // DONE prevent keyboard from popping up
 // DONE show last found words underneath points (in recency order)
 // DONE when last found words tapped, reveal all of them (in alpha order)
@@ -284,26 +286,17 @@ struct ContentView: View {
 
             //** PROGRESS GAUGE
             if !game.outerLetters.isEmpty {
-                Gauge(value: Double(game.guessedPoints), in: 0...Double(game.possiblePoints)) {
-                    Text("Progress")
-                } currentValueLabel: {
-                    Text("\(game.guessedPoints)")
-                } minimumValueLabel: {
-                    Text(game.rank.rawValue)
-                    //                            .transition(AnyTransition.opacity.animation(.easeInOut(duration:1.0)))
-                        .bold()
-                        .foregroundStyle(.blue)
-                    //.foregroundStyle(
-                    //.shadow(color: .green, radius: 3)
-                    //.foregroundStyle(.shadow(.drop(radius: 3)))
-                } maximumValueLabel: {
-                    Text("\(game.possiblePoints)")
-                }
-                .gaugeStyle(SpellingBeeGaugeStyle())
-                .onTapGesture {
-                    print("progress gauge tapped")
-                }
-                .padding(.vertical)
+                SpellingBeeGauge(
+                    minValue: .constant(0),
+                    maxValue: $game.possiblePoints,
+                    value: $game.guessedPoints,
+                    minValueLabel: {
+                        Text("\(game.rank.rawValue)")
+                            .font(.body.bold())
+                            .foregroundColor(AppColors.colorMain)
+                    }, maxValueLabel: {
+                        Text("\(game.possiblePoints)")
+                    })
             }
 
             // Words Found
@@ -511,9 +504,8 @@ struct ContentView: View {
                     Button {
                         onSubmit()
                     } label: {
-                        Text("Enter")
+                        Text("**Enter**")
                             .frame(width: 80, height: 50)
-                            .bold()
                     }
                     .disabled(game.outerLetters.isEmpty)
                     .buttonStyle(.borderedProminent)
@@ -546,7 +538,8 @@ struct ContentView: View {
             //UISegmentedControl.appearance().setContentHuggingPriority(.defaultLow, for: .vertical)
         })
 
-        .sheet(isPresented: $showNewGameModal, content: {
+//ios16        .sheet(isPresented: $showNewGameModal, content: {
+        .halfSheet(showSheet: $showNewGameModal, content: {
             VStack {
                 ZStack {
                     Text("New Game")
@@ -587,10 +580,12 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
-            .presentationDetents([.height(300)])
+//ios16            .presentationDetents([.height(300)])
+        }, onDismiss: {
         })
 
-        .sheet(isPresented: $showSettingsModal, content: {
+//ios16        .sheet(isPresented: $showSettingsModal, content: {
+        .halfSheet(showSheet: $showSettingsModal, content: {
             VStack {
                 ZStack {
                     Text("Settings")
@@ -616,7 +611,9 @@ struct ContentView: View {
                 .padding()
                 Spacer()
             }
-            .presentationDetents([.height(300)])
+            .foregroundStyle(Color.blue)
+//ios16            .presentationDetents([.height(300)])
+        }, onDismiss: {
         })
     }
 }
