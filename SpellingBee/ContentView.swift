@@ -13,14 +13,17 @@
 // debug menu: specify letters to use (for comparing with NYT app)
 // investigate using SwiftData for persistence: https://developer.apple.com/xcode/swiftdata/
 // move game business logic into separate class with its own unit tests
-// play sounds on button presses / word found
-//  - https://www.hackingwithswift.com/forums/100-days-of-swiftui/trying-to-play-sound-when-pressing-button/28226
 // loading indicator while new game getting created
 // popup new game modal automatically (if no saved game)
 // tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
-// find better kids words file -- it's too limited, doesn't have a lot of words
+// KIDS MODE - work on that - easier ranking
+// progress bar should align Genius to 100% ?
 // support iPad layout
+//  -- problems: buttons pushed down past edge,
+// why word entry height changes when empty?
+// investigate % height layout -- need to use GeometryReader
+// customizable colors
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -28,6 +31,7 @@
 // dark mode
 //
 // DONE:
+// DONE play sounds on button presses / word found
 // DONE make sure game will build/work on Nolan's iPad (iOS 15.8)
 // DONE prevent keyboard from popping up
 // DONE show last found words underneath points (in recency order)
@@ -78,6 +82,29 @@ extension UISegmentedControl {
     }
 }
 
+extension Color: @retroactive RawRepresentable {
+    public init?(rawValue: String) {
+        let rgbArray = rawValue.components(separatedBy: ",")
+        if let red = Double (rgbArray[0]), let green = Double (rgbArray[1]), let blue = Double(rgbArray[2]), let alpha = Double (rgbArray[3]) {
+            self.init(red: red, green: green, blue: blue, opacity: alpha)
+        }
+        else {
+            self = .black
+        }
+    }
+    
+    public var rawValue: String {
+        let uiColor = UIColor(self)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+
+        return "\(red),\(green),\(blue),\(alpha)"
+    }
+}
+
 struct ContentView: View {
     let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                         category: String(describing: ContentView.self))
@@ -92,19 +119,21 @@ struct ContentView: View {
 
     @ObservedObject var game: GameState
     var dictionary: Trie
-    var kidsDictionary: Trie
-
+    
     @State private var showToast = false
     @State private var toastType = ToastType.toastFound
     @State private var isShuffling = false
     @State private var showHint = false
-    @State private var showNewGameModal = false
-    @State private var showSettingsModal = false
+    @State private var showNewGameModal: Bool? = nil
+    @State private var showSettingsModal: Bool? = nil
     @State private var showWordsFound = false
     
     @FocusState private var textFocused: Bool
     
     @AppStorage("hintsEnabled") private var hintsEnabled = false
+    @AppStorage("soundsEnabled") private var soundsEnabled = true
+    @AppStorage("hexagonColor") private var hexagonColor = AppColors.hexagon
+    @AppStorage("centerHexagonColor") private var centerHexagonColor = AppColors.centerHexagon
 
     let VOWELS = ["a","e","i","o","u"]
     let CONS = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y","z"]
@@ -134,17 +163,29 @@ struct ContentView: View {
     private func onSubmit() {
         if game.enteredWord.firstIndex(of: game.centerLetter[0]) == nil {
             toastType = ToastType.toastMissingCenterLetter
+            if soundsEnabled { Sounds.playSound(.fartcurly) }
         } else if game.enteredWord.count < game.minCharacters {
             toastType = ToastType.toastTooShort
+            if soundsEnabled { Sounds.playSound(.fartlittle) }
         } else if game.guessedWords.firstIndex(of: game.enteredWord.lowercased()) != nil {
             toastType = ToastType.toastAlreadyChosen
+            if soundsEnabled { Sounds.playSound(.fartbig) }
         } else if let i = game.remainingWords.firstIndex(of: game.enteredWord.lowercased()) {
+            // guessed a word correctly
+            let rankOld = game.rank
             game.remainingWords.remove(at: i)
             game.guessedWords.append(game.enteredWord.lowercased())
             game.guessedPoints = calculatePoints(for: game.guessedWords)
             toastType = ToastType.toastFound
+            if game.rank != rankOld {
+                // graduated ranks!
+                if soundsEnabled { Sounds.playRandomSound(Sounds.bigwins) }
+            } else {
+                if soundsEnabled { Sounds.playRandomSound(Sounds.littlewins) }
+            }
         } else {
             toastType = ToastType.toastNotFound
+            if soundsEnabled { Sounds.playSound(.fartsqueak) }
         }
         updateEnteredWord(text: "")
         textFocused = true
@@ -155,16 +196,16 @@ struct ContentView: View {
     }
     
     private func restartGame() {
-        let possibleMatchesRange: Range<Int>
+        let possibleMatchesRange: ClosedRange<Int>
         switch game.difficultyLevel {
         case .kids:
-            possibleMatchesRange = 20..<50
+            possibleMatchesRange = 100...150
         case .easy:
-            possibleMatchesRange = 150..<300
+            possibleMatchesRange = 100...150
         case .medium:
-            possibleMatchesRange = 50..<150
+            possibleMatchesRange = 50...100
         case .hard:
-            possibleMatchesRange = 20..<50
+            possibleMatchesRange = 20...50
         }
         var i = 1
         while true {
@@ -175,7 +216,6 @@ struct ContentView: View {
                 let randIndex = Int.random(in: 0..<vowels2.count)
                 chosenVowels.append(vowels2.remove(at: randIndex))
             }
-            logger.debug("chosen vowels: \(chosenVowels.joined())")
             
             var chosenCons: [String] = []
             var cons2 = CONS
@@ -183,7 +223,6 @@ struct ContentView: View {
                 let randIndex = Int.random(in: 0..<cons2.count)
                 chosenCons.append(cons2.remove(at: randIndex))
             }
-            logger.debug("chosen cons: \(chosenCons.joined())")
             
             var center: String
             let randIndex = Int.random(in: 0...6)
@@ -192,16 +231,14 @@ struct ContentView: View {
             } else {
                 center = chosenCons.remove(at: randIndex - 2)
             }
-            logger.debug("center: \(center)")
-            logger.debug("vowels: \(chosenVowels.joined())")
-            logger.debug("cons: \(chosenCons.joined())")
             
-            logger.debug("finding possible words")
+            logger.debug("finding possible words, letters: \(chosenVowels.joined())\(chosenCons.joined()), center: \(center)")
             let possibleWords = Util.findPossibleWords(
                 letters: chosenVowels.joined() + chosenCons.joined() + center,
                 requiredLetter: center,
-                trie: game.difficultyLevel == .kids ? kidsDictionary : dictionary)
-            logger.debug("finding possible words DONE")
+                minLength: game.minCharacters,
+                trie: dictionary,
+                stopAt: possibleMatchesRange.upperBound + 1)
             if possibleMatchesRange.contains(possibleWords.count) {
                 // hooray - we found a match!
                 game.outerLetters = String(chosenVowels.joined() + chosenCons.joined()).uppercased()
@@ -262,7 +299,7 @@ struct ContentView: View {
                 Spacer()
                 // New Game Button
                 Button {
-                    showNewGameModal.toggle()
+                    showNewGameModal = !(showNewGameModal ?? false)
                 } label: {
                     Image(systemName: "arrow.counterclockwise.circle")
                         .resizable()
@@ -271,7 +308,7 @@ struct ContentView: View {
                 }
                 // Settings Button
                 Button {
-                    showSettingsModal.toggle()
+                    showSettingsModal = !(showSettingsModal ?? false)
                 } label: {
                     Image(systemName: "gearshape")
                         .resizable()
@@ -320,7 +357,7 @@ struct ContentView: View {
                             HStack(alignment: .top, spacing: 8) {
                                 // First column
                                 let words = getWordsByAlpha()
-                                let midpoint = words.count / 2
+                                let midpoint = words.count == 0 ? 0 : words.count / 2 + 1
                                 VStack(alignment: .leading, spacing: 4) {
                                     ForEach(words[..<midpoint], id: \.self) { word in
                                         Text(word)
@@ -355,7 +392,7 @@ struct ContentView: View {
             
             if (!showWordsFound) {
                 // Word Entry
-                // TextField shows cursor, but couldn't prevent keyboard from popping up
+                //TODO: TextField shows cursor, but couldn't prevent keyboard from popping up
 //                TextField(
 //                    "",
 //                    text: $game.enteredWord
@@ -455,7 +492,10 @@ struct ContentView: View {
                             height: 100
                         ),
                         isShuffling: $isShuffling,
+                        outerColor: $hexagonColor,
+                        centerColor: $centerHexagonColor,
                         onTap: { text, isCenter in
+                            if soundsEnabled { Sounds.playSound(.softClick) }
                             logger.debug("Honeycomb letter entered: \(text), isCenter: \(isCenter)")
                             updateEnteredWord(text: game.enteredWord + text)
                         }
@@ -582,6 +622,7 @@ struct ContentView: View {
             }
 //ios16            .presentationDetents([.height(300)])
         }, onDismiss: {
+            logger.debug("new game modal dismissed")
         })
 
 //ios16        .sheet(isPresented: $showSettingsModal, content: {
@@ -609,11 +650,30 @@ struct ContentView: View {
                     Text("Enable word match hints")
                 })
                 .padding()
+                Toggle(isOn: $soundsEnabled, label: {
+                    Text("Play sounds")
+                })
+                .padding()
+                //TODO: custom button: https://switch2mac.medium.com/colorpicker-with-custom-styled-button-b5f0e701972d
+//                    HexagonButton(
+//                        text: "",
+//                        rect: CGRect(x: 0, y: 0, width: 30, height: 30),
+//                        textColor: Color.white,
+//                        backgroundColor: hexagonColorState,
+//                        { text in
+//                            ColorPicker("set the color", selection: $hexagonColor)
+//                        }
+//                    )
+                ColorPicker("Outer Hexagon Color", selection: $hexagonColor)
+                    .padding()
+                ColorPicker("Center Hexagon Color", selection: $centerHexagonColor)
+                    .padding()
                 Spacer()
             }
             .foregroundStyle(Color.blue)
 //ios16            .presentationDetents([.height(300)])
         }, onDismiss: {
+            logger.debug("settings modal dismissed")
         })
     }
 }
@@ -628,6 +688,6 @@ struct ContentView: View {
             game.guessedPoints = 123
             game.possiblePoints = 150
         }()
-        ContentView(game: game, dictionary: Trie(), kidsDictionary: Trie())
+        ContentView(game: game, dictionary: Trie())
     }
 }

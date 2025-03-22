@@ -6,7 +6,7 @@ import SwiftUI
 extension View {
     //binding show bariable...
     func halfSheet<Content: View>(
-        showSheet: Binding<Bool>,
+        showSheet: Binding<Bool?>,
         @ViewBuilder content: @escaping () -> Content,
         onDismiss: @escaping () -> Void
     ) -> some View {
@@ -22,7 +22,7 @@ struct HalfSheetHelper<Content: View>: UIViewControllerRepresentable {
     
     var sheetView: Content
     let controller: UIViewController = UIViewController()
-    @Binding var showSheet: Bool
+    @Binding var showSheet: Bool?
     var onDismiss: () -> Void
     
     func makeCoordinator() -> Coordinator {
@@ -35,15 +35,19 @@ struct HalfSheetHelper<Content: View>: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-//        if let showSheet: Bool = showSheet {
+        if let showSheet: Bool = showSheet {
             if showSheet {
                 let sheetController = CustomHostingController(rootView: sheetView)
                 sheetController.presentationController?.delegate = context.coordinator
                 uiViewController.present(sheetController, animated: true)
             } else {
-                uiViewController.dismiss(animated: true)
+                uiViewController.presentedViewController?.dismiss(animated: true)
+                onDismiss()
+                DispatchQueue.main.async {
+                    self.showSheet = nil
+                }
             }
-//        }
+        }
     }
     
     //on dismiss...
@@ -79,7 +83,7 @@ final class CustomHostingController<Content: View>: UIHostingController<Content>
             
             //MARK: - sheet corner radius
             presentationController.preferredCornerRadius = 30
-            
+
             // for more sheet customisation check out this great article https://sarunw.com/posts/bottom-sheet-in-ios-15-with-uisheetpresentationcontroller/#scrolling
         }
     }

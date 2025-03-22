@@ -15,7 +15,6 @@ struct SpellingBeeApp: App {
 
     @StateObject private var store = GameStore()
     private var dictionary = Trie()
-    private var kidsDictionary = Trie()
 
     private func initGame() {
         // taken from https://github.com/BartMassey/wordlists/blob/main/eowl.txt.gz
@@ -29,7 +28,7 @@ struct SpellingBeeApp: App {
             let words = fileContents.components(separatedBy: CharacterSet.whitespacesAndNewlines)
             logger.debug("building trie")
             for word in words {
-                if word.count >= Util.MIN_CHARS_ADULTS {
+                if word.count >= Util.MIN_CHARS_KIDS {
                     dictionary.insert(val: word)
                 }
             }
@@ -39,30 +38,31 @@ struct SpellingBeeApp: App {
         }
 
         // taken from https://github.com/powerlanguage/word-lists/blob/master/1000-most-common-words.txt
-        logger.debug("reading word file - kids")
-        guard let filePath = Bundle.main.path(forResource: "1000-most-common-words", ofType: "txt") else {
-            logger.fault("File not found")
-            return
-        }
-        do {
-            let fileContents = try String(contentsOfFile: filePath)
-            let words = fileContents.components(separatedBy: CharacterSet.whitespacesAndNewlines)
-            logger.debug("building trie")
-            for word in words {
-                // for kids, allow 3-letter words
-                if word.count >= Util.MIN_CHARS_KIDS {
-                    kidsDictionary.insert(val: word)
-                }
-            }
-            logger.debug("building trie DONE")
-        } catch {
-            logger.fault("Error reading words file: \(error.localizedDescription)")
-        }
+        //TODO: remove - just adjust grading scale for kids instead of avail words
+//        logger.debug("reading word file - kids")
+//        guard let filePath = Bundle.main.path(forResource: "1000-most-common-words", ofType: "txt") else {
+//            logger.fault("File not found")
+//            return
+//        }
+//        do {
+//            let fileContents = try String(contentsOfFile: filePath)
+//            let words = fileContents.components(separatedBy: CharacterSet.whitespacesAndNewlines)
+//            logger.debug("building trie")
+//            for word in words {
+//                // for kids, allow 3-letter words
+//                if word.count >= Util.MIN_CHARS_KIDS {
+//                    kidsDictionary.insert(val: word)
+//                }
+//            }
+//            logger.debug("building trie DONE")
+//        } catch {
+//            logger.fault("Error reading words file: \(error.localizedDescription)")
+//        }
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView(game: store.game, dictionary: dictionary, kidsDictionary: kidsDictionary)
+            ContentView(game: store.game, dictionary: dictionary)
                 .task {
                     do {
                         initGame() //TODO: use async/await here

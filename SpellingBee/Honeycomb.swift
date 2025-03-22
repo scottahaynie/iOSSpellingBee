@@ -91,6 +91,8 @@ struct Honeycomb: View {
     //TODO: rect should be the rect of all hexagons, not just one
     var rect: CGRect
     @Binding var isShuffling: Bool
+    @Binding var outerColor: Color
+    @Binding var centerColor: Color
     var onTap: (String, Bool) -> Void
     
     @State private var positions: [CGPoint] = [
@@ -135,7 +137,7 @@ struct Honeycomb: View {
                    text: self.outerLetters.isEmpty ? "" : String(self.outerLetters[index]),
                    rect: CGRect(origin: positions[index], size: self.rect.size),
                    textColor: Color.white,
-                   backgroundColor: AppColors.hexagon,
+                   backgroundColor: outerColor,
                    { text in
                        self.onTap(text, false)
                    }
@@ -145,7 +147,7 @@ struct Honeycomb: View {
                 text: centerLetter,
                 rect: self.rect,
                 textColor: Color.white,
-                backgroundColor: AppColors.centerHexagon,
+                backgroundColor: centerColor,
                 { text in
                     self.onTap(text, true)
                 }
@@ -177,6 +179,8 @@ struct Honeycomb: View {
 
 struct PreviewContainer: View {
     @State var isShuffling: Bool = false
+    @State var outerColor: Color = .blue
+    @State var centerColor: Color = .black
     var body: some View {
         Group {
             Button("Shuffle") {
@@ -191,6 +195,8 @@ struct PreviewContainer: View {
                                  width: 100,
                                  height: 100),
                     isShuffling: $isShuffling, //.constant(false),
+                    outerColor: $outerColor,
+                    centerColor: $centerColor,
                     onTap: { text, isCenter in
                         print("Honeycomb letter tapped: \(text), is center: \(isCenter)")
                     }

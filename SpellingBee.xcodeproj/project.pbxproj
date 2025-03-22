@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C0F51902D8EB3FE006562A6 /* Sounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F518F2D8EB3F9006562A6 /* Sounds.swift */; };
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
 		1C3631682D8AB5160049D434 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631672D8AB5120049D434 /* AppColors.swift */; };
 		1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */; };
@@ -45,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1C0F518F2D8EB3F9006562A6 /* Sounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sounds.swift; sourceTree = "<group>"; };
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		1C3631672D8AB5120049D434 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeGauge.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 		1CEC94702D5954710099DD07 /* SpellingBee */ = {
 			isa = PBXGroup;
 			children = (
+				1C0F518F2D8EB3F9006562A6 /* Sounds.swift */,
 				1C36316B2D8BC7360049D434 /* SheetUIKit.swift */,
 				1C3631672D8AB5120049D434 /* AppColors.swift */,
 				1CD612DC2D82BDF40006FEDF /* 1000-most-common-words.txt */,
@@ -313,6 +316,7 @@
 				1C5E0B762D68E7E000CCB9DB /* Honeycomb.swift in Sources */,
 				1CEC94722D5954710099DD07 /* SpellingBeeApp.swift in Sources */,
 				1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */,
+				1C0F51902D8EB3FE006562A6 /* Sounds.swift in Sources */,
 				1C64B9432D685910007AFF39 /* Util.swift in Sources */,
 				1C36316C2D8BC7360049D434 /* SheetUIKit.swift in Sources */,
 			);
@@ -484,7 +488,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -513,7 +517,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
