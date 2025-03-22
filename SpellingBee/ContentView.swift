@@ -17,13 +17,14 @@
 // popup new game modal automatically (if no saved game)
 // tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
-// KIDS MODE - work on that - easier ranking
+// kids mode - easier ranking
+// kids mode - easier words (# of syllables/ frequency)
 // progress bar should align Genius to 100% ?
 // support iPad layout
 //  -- problems: buttons pushed down past edge,
 // why word entry height changes when empty?
 // investigate % height layout -- need to use GeometryReader
-// customizable colors
+// support large text sizes
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -31,6 +32,7 @@
 // dark mode
 //
 // DONE:
+// DONE customizable colors
 // DONE play sounds on button presses / word found
 // DONE make sure game will build/work on Nolan's iPad (iOS 15.8)
 // DONE prevent keyboard from popping up
