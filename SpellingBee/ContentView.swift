@@ -338,7 +338,7 @@ struct ContentView: View {
                     })
             }
 
-            // Words Found
+            //** WORDS FOUND
             Button {
                 showWordsFound.toggle()
             } label: {
@@ -423,6 +423,7 @@ struct ContentView: View {
 //                    }
 //                }
 //
+                //** WORD ENTRY
                 Text(game.enteredWord)
                     .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
                     .foregroundColor(.black)
@@ -449,7 +450,7 @@ struct ContentView: View {
                         }
                     }
 
-                // Matching Words Hint
+                //** MATCHING WORDS HINT
                 if hintsEnabled {
                     if showHint {
                         Text(game.numWordsWithPrefix == -1 ? " " :
@@ -482,7 +483,7 @@ struct ContentView: View {
                     }
                 }
 
-                // Honeycomb
+                //** HONEYCOMB
                 GeometryReader { geometryHoneycomb in
                     Honeycomb(
                         outerLetters: game.outerLetters,
@@ -505,7 +506,7 @@ struct ContentView: View {
                 }
                 .frame(height: 300)
 
-                // Button Row
+                //** BUTTON ROW
                 HStack {
                     // Delete Button
                     Button(action: {
@@ -520,18 +521,23 @@ struct ContentView: View {
                             .contentShape(Rectangle()) // to make space around image tappable
                             .onTapGesture {
                                 updateEnteredWord(text: String(game.enteredWord.dropLast(1)))
+                                if soundsEnabled { Sounds.playSound(.erase1) }
                             }
                             .onLongPressGesture(minimumDuration: 0.1) {
                                 updateEnteredWord(text: "")
+                                if soundsEnabled { Sounds.playSound(.erase1) }
                             }
+
                         //                        }
                     }
+                    .tint(hexagonColor)
                     .disabled(game.outerLetters.isEmpty || game.enteredWord.isEmpty)
                     .buttonStyle(.borderedProminent)
                     
                     // Shuffle Button
                     Button {
                         isShuffling = true
+                        if soundsEnabled { Sounds.playSound(.shuffle1) }
                     } label: {
                         Image(systemName: "shuffle")
                             .resizable()
@@ -539,6 +545,7 @@ struct ContentView: View {
                             .padding(.all, 10)
                             .frame(width: 50, height: 50)
                     }
+                    .tint(hexagonColor)
                     .disabled(game.outerLetters.isEmpty)
                     .buttonStyle(.borderedProminent)
                     
@@ -549,6 +556,7 @@ struct ContentView: View {
                         Text("**Enter**")
                             .frame(width: 80, height: 50)
                     }
+                    .tint(hexagonColor)
                     .disabled(game.outerLetters.isEmpty)
                     .buttonStyle(.borderedProminent)
                 }

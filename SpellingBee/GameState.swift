@@ -46,8 +46,10 @@ class GameState: ObservableObject, Codable {
                     return Rank.Great
                 case 0.50..<0.70:
                     return Rank.Amazing
-                default:
+                case 0.70..<1.0:
                     return Rank.Genius
+                default:
+                    return Rank.Queen
                 }
             } else {
                 return Rank.Beginner
@@ -65,6 +67,7 @@ class GameState: ObservableObject, Codable {
         case Great = "Great"
         case Amazing = "Amazing"
         case Genius = "Genius"
+        case Queen = "QUEEN"
     }
 
     enum DifficultyLevel: String, Codable {

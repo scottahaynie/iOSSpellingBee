@@ -28,6 +28,8 @@ struct Sounds {
         case woohoo = "woohoo.m4a"
         case yahoo = "yahoo.m4a"
         case applause = "crowd-applause-113728.mp3"
+        case shuffle1 = "goopy-slime-24-229640-lower2.mp3"
+        case erase1 = "woop.m4a"
     }
 
     static var soundIds: [Sound: SystemSoundID] = [:]
