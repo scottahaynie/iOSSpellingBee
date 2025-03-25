@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1C0F51902D8EB3FE006562A6 /* Sounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F518F2D8EB3F9006562A6 /* Sounds.swift */; };
+		1C0F51B62D92B318006562A6 /* WordsFoundDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F51B52D92B318006562A6 /* WordsFoundDropdown.swift */; };
 		1C3558992D719D700071A067 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3558982D719D700071A067 /* GameState.swift */; };
 		1C3631682D8AB5160049D434 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631672D8AB5120049D434 /* AppColors.swift */; };
 		1C36316A2D8AC4B80049D434 /* SpellingBeeGauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */; };
@@ -47,6 +48,7 @@
 
 /* Begin PBXFileReference section */
 		1C0F518F2D8EB3F9006562A6 /* Sounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sounds.swift; sourceTree = "<group>"; };
+		1C0F51B52D92B318006562A6 /* WordsFoundDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsFoundDropdown.swift; sourceTree = "<group>"; };
 		1C3558982D719D700071A067 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
 		1C3631672D8AB5120049D434 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellingBeeGauge.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 				1C5E0B752D68E7E000CCB9DB /* Honeycomb.swift */,
 				1C3558982D719D700071A067 /* GameState.swift */,
 				1C3631692D8AC4B80049D434 /* SpellingBeeGauge.swift */,
+				1C0F51B52D92B318006562A6 /* WordsFoundDropdown.swift */,
 			);
 			path = SpellingBee;
 			sourceTree = "<group>";
@@ -310,6 +313,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1C3558992D719D700071A067 /* GameState.swift in Sources */,
+				1C0F51B62D92B318006562A6 /* WordsFoundDropdown.swift in Sources */,
 				1C64B9412D6855AB007AFF39 /* Trie.swift in Sources */,
 				1C3631682D8AB5160049D434 /* AppColors.swift in Sources */,
 				1CEC94742D5954710099DD07 /* ContentView.swift in Sources */,

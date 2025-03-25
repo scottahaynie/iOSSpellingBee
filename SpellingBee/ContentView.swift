@@ -31,6 +31,7 @@
 // dark mode
 //
 // DONE:
+// DONE move Words Found component into separate class
 // DONE progress bar should align Genius to 100% ?
 // DONE kids mode - easier ranking
 // DONE customizable colors
@@ -282,13 +283,6 @@ struct ContentView: View {
             try? await game.save()
         }
     }
-    
-    private func getWordsByRecent() -> [String] {
-        return game.guessedWords.reversed().compactMap { $0.capitalized }
-    }
-    private func getWordsByAlpha() -> [String] {
-        return game.guessedWords.sorted().compactMap { $0.capitalized }
-    }
 
     var body: some View {
         VStack {
@@ -342,57 +336,7 @@ struct ContentView: View {
             }
 
             //** WORDS FOUND
-            Button {
-                showWordsFound.toggle()
-            } label: {
-                VStack {
-                    HStack {
-                        Text(showWordsFound
-                             ? "You found \(game.guessedWords.count) words:"
-                             : getWordsByRecent().joined(separator: " "))
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .padding(.all, PADDING_HORIZONTAL)
-                        Spacer()
-                        Image(systemName: showWordsFound ? "chevron.up" : "chevron.down")
-                            .padding(.all, PADDING_HORIZONTAL)
-                    }
-                    if (showWordsFound) {
-                        ScrollView {
-                            HStack(alignment: .top, spacing: 8) {
-                                // First column
-                                let words = getWordsByAlpha()
-                                let midpoint = words.count == 0 ? 0 : words.count / 2 + 1
-                                VStack(alignment: .leading, spacing: 4) {
-                                    ForEach(words[..<midpoint], id: \.self) { word in
-                                        Text(word)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(.horizontal, 8)
-                                    }
-                                }
-
-                                // Second column
-                                VStack(alignment: .leading, spacing: 4) {
-                                    ForEach(words[midpoint...], id: \.self) { word in
-                                        Text(word)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(.horizontal, 8)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, PADDING_HORIZONTAL)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: showWordsFound ? .infinity : nil,
-                   maxHeight: showWordsFound ? .infinity : nil,
-                   alignment: .top)
-            .overlay(
-                RoundedRectangle(cornerRadius: 5)
-                    .stroke(Color.gray)
-            )
-            .padding(.vertical)
+            WordsFoundDropdown(words: game.guessedWords, showWordsFound: $showWordsFound)
             Spacer(minLength: 40)
             
             if (!showWordsFound) {
