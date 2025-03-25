@@ -9,7 +9,7 @@
 // IMMEDIATE:
 // polish new game modal
 // look for panagrams - alter points/ranks calcs based on it
-// fix bug where some hexagons don't animate, they just snap into their new position
+// bug: hexagons don't animate, they just snap into their new position
 // debug menu: specify letters to use (for comparing with NYT app)
 // investigate using SwiftData for persistence: https://developer.apple.com/xcode/swiftdata/
 // move game business logic into separate class with its own unit tests
@@ -17,14 +17,13 @@
 // popup new game modal automatically (if no saved game)
 // tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
-// kids mode - easier ranking
 // kids mode - easier words (# of syllables/ frequency)
-// progress bar should align Genius to 100% ?
 // support iPad layout
 //  -- problems: buttons pushed down past edge,
 // why word entry height changes when empty?
 // investigate % height layout -- need to use GeometryReader
 // support large text sizes
+// bug: New game modal switching level shouldn't alter current game
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -32,6 +31,8 @@
 // dark mode
 //
 // DONE:
+// DONE progress bar should align Genius to 100% ?
+// DONE kids mode - easier ranking
 // DONE customizable colors
 // DONE play sounds on button presses / word found
 // DONE make sure game will build/work on Nolan's iPad (iOS 15.8)
@@ -171,7 +172,7 @@ struct ContentView: View {
             if soundsEnabled { Sounds.playSound(.fartlittle) }
         } else if game.guessedWords.firstIndex(of: game.enteredWord.lowercased()) != nil {
             toastType = ToastType.toastAlreadyChosen
-            if soundsEnabled { Sounds.playSound(.fartbig) }
+            if soundsEnabled { Sounds.playRandomSound(Sounds.bigmisses) }
         } else if let i = game.remainingWords.firstIndex(of: game.enteredWord.lowercased()) {
             // guessed a word correctly
             let rankOld = game.rank
@@ -325,16 +326,18 @@ struct ContentView: View {
 
             //** PROGRESS GAUGE
             if !game.outerLetters.isEmpty {
+                let maxValue = Int(Float(game.possiblePoints) * (game.isKids ? GameState.Rank.Genius.kidsRange.lowerBound : GameState.Rank.Genius.range.lowerBound))
                 SpellingBeeGauge(
-                    minValue: .constant(0),
-                    maxValue: $game.possiblePoints,
-                    value: $game.guessedPoints,
+                    minValue: 0,
+                    maxValue: maxValue,
+                    value: game.guessedPoints,
+                    tickValues: game.getRankThresholds(),
                     minValueLabel: {
                         Text("\(game.rank.rawValue)")
                             .font(.body.bold())
                             .foregroundColor(AppColors.colorMain)
                     }, maxValueLabel: {
-                        Text("\(game.possiblePoints)")
+                        Text("\(maxValue)")
                     })
             }
 

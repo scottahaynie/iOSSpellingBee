@@ -12,9 +12,9 @@ struct Sounds {
     static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                         category: String(describing: Sounds.self))
 
-    static let littlefarts = [Sound.fartlittle, Sound.fartcurly]
-    static let bigfarts = [Sound.fartbig]
-    static let littlewins = [Sound.selectClick, Sound.woohoo, Sound.yayfunny]
+    static let littlemisses = [Sound.fartlittle, Sound.fartcurly]
+    static let bigmisses = [Sound.fartbig, Sound.burpbig]
+    static let littlewins = [Sound.selectClick, Sound.woohoo, Sound.yayfunny, Sound.gorilla1]
     static let bigwins = [Sound.yahoo, Sound.applause]
 
     enum Sound: String {
@@ -30,6 +30,8 @@ struct Sounds {
         case applause = "crowd-applause-113728.mp3"
         case shuffle1 = "goopy-slime-24-229640-lower2.mp3"
         case erase1 = "woop.m4a"
+        case burpbig = "burp-20581.mp3"
+        case gorilla1 = "gorilla1-louder.m4a"
     }
 
     static var soundIds: [Sound: SystemSoundID] = [:]

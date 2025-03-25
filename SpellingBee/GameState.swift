@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import OSLog
 
 class GameState: ObservableObject, Codable {
+    let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
+                        category: String(describing: GameState.self))
     
     var createDate: Date = Date.now
     @Published var outerLetters: String = "" // uppercased
@@ -20,44 +23,46 @@ class GameState: ObservableObject, Codable {
     @Published var numWordsWithPrefix = -1
 
     @Published var difficultyLevel = DifficultyLevel.easy
+    var isKids: Bool {
+        get {
+            return difficultyLevel == DifficultyLevel.kids
+        }
+    }
     var minCharacters: Int {
         get {
-            return difficultyLevel == DifficultyLevel.kids ? Util.MIN_CHARS_KIDS : Util.MIN_CHARS_ADULTS
+            return isKids ? Util.MIN_CHARS_KIDS : Util.MIN_CHARS_ADULTS
         }
     }
     var rank: Rank {
         get {
             if possiblePoints > 0 {
-                let progressPct = Double(guessedPoints) / Double(possiblePoints)
-                switch progressPct {
-                case 0.00..<0.02:
-                    return Rank.Beginner
-                case 0.02..<0.05:
-                    return Rank.GoodStart
-                case 0.05..<0.08:
-                    return Rank.MovingUp
-                case 0.08..<0.15:
-                    return Rank.Good
-                case 0.15..<0.25:
-                    return Rank.Solid
-                case 0.25..<0.40:
-                    return Rank.Nice
-                case 0.40..<0.50:
-                    return Rank.Great
-                case 0.50..<0.70:
-                    return Rank.Amazing
-                case 0.70..<1.0:
-                    return Rank.Genius
-                default:
-                    return Rank.Queen
+                let progressPct = Float(guessedPoints) / Float(possiblePoints)
+                for rank in Rank.allCases {
+                    if isKids {
+                        if rank.kidsRange.contains(progressPct) {
+                            return rank
+                        }
+                    } else if rank.range.contains(progressPct) {
+                        return rank
+                    }
                 }
+                fatalError("Could not find a matching rank for percentage: \(progressPct)")
             } else {
                 return Rank.Beginner
             }
         }
     }
+    func getRankThresholds() -> [Int] {
+        return Rank.allCases.map { Int(Float(self.possiblePoints) * Float(isKids ? $0.kidsRange.lowerBound : $0.range.lowerBound)) }
+    }
+    func getRankRangeMarks() -> [Float] {
+        return Rank.allCases.map { isKids ? $0.kidsRange.lowerBound : $0.range.lowerBound }
+    }
+    func getRanksAndRanges() -> [(Rank, Range<Float>)] {
+        return Rank.allCases.map { ($0, isKids ? $0.kidsRange : $0.range ) }
+    }
 
-    enum Rank: String {
+    enum Rank: String, CaseIterable {
         case Beginner = "Beginner"
         case GoodStart = "Good Start"
         case MovingUp = "Moving Up"
@@ -67,7 +72,51 @@ class GameState: ObservableObject, Codable {
         case Great = "Great"
         case Amazing = "Amazing"
         case Genius = "Genius"
-        case Queen = "QUEEN"
+        
+        var kidsRange: Range<Float> {
+            switch(self) {
+            case .Beginner:
+                return 0.00..<0.01
+            case .GoodStart:
+                return 0.01..<0.02
+            case .MovingUp:
+                return 0.02..<0.04
+            case .Good:
+                return 0.04..<0.08
+            case .Solid:
+                return 0.08..<0.12
+            case .Nice:
+                return 0.12..<0.18
+            case .Great:
+                return 0.18..<0.25
+            case .Amazing:
+                return 0.25..<0.35
+            case .Genius:
+                return 0.35..<1.00
+            }
+        }
+        var range: Range<Float> {
+            switch(self) {
+            case .Beginner:
+                return 0.00..<0.02
+            case .GoodStart:
+                return 0.02..<0.05
+            case .MovingUp:
+                return 0.05..<0.08
+            case .Good:
+                return 0.08..<0.15
+            case .Solid:
+                return 0.15..<0.25
+            case .Nice:
+                return 0.25..<0.40
+            case .Great:
+                return 0.40..<0.50
+            case .Amazing:
+                return 0.50..<0.70
+            case .Genius:
+                return 0.70..<1.00
+            }
+        }
     }
 
     enum DifficultyLevel: String, Codable {

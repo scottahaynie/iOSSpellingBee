@@ -8,11 +8,25 @@
 import SwiftUI
 
 struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
-    @Binding var minValue: Int
-    @Binding var maxValue: Int
-    @Binding var value: Int
+    var minValue: Int
+    var maxValue: Int
+    var value: Int
+    var tickValues: [Int]
     let minValueLabel: () -> MinLabel
     let maxValueLabel: () -> MaxLabel
+
+    private let tickPercents: [Double]
+    
+    init(minValue: Int, maxValue: Int, value: Int, tickValues: [Int] = [], minValueLabel: @escaping () -> MinLabel, maxValueLabel: @escaping () -> MaxLabel) {
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.value = value
+        self.tickValues = tickValues
+        self.minValueLabel = minValueLabel
+        self.maxValueLabel = maxValueLabel
+        
+        self.tickPercents = self.tickValues.map { Double($0) / Double((maxValue - minValue)) }
+    }
 
     var body: some View {
         HStack {
@@ -23,8 +37,7 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
                     RoundedRectangle(cornerRadius: 5)
                         .frame(height: 5)
                         .foregroundStyle(.gray.opacity(0.5))
-                    let ticks = [0.00, 0.02, 0.05, 0.08, 0.15, 0.25, 0.40, 0.50, 0.70]
-                    ForEach(ticks, id:\.self) { tick in
+                    ForEach(tickPercents, id:\.self) { tick in
                         Rectangle()
                             .frame(width: 4, height: 10)
                             .offset(x: geo.size.width * tick)
@@ -109,9 +122,10 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
 
 #Preview {
     SpellingBeeGauge(
-        minValue: .constant(0),
-        maxValue: .constant(100),
-        value: .constant(57),
+        minValue: 0,
+        maxValue: 100,
+        value: 57,
+        tickValues: [0,5,10,20,40,80,100],
         minValueLabel: {
             Text("Great")
                 .font(.body.bold())
