@@ -69,6 +69,7 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
             }
             .frame(height: 28) // needed to keep things v-centered because of GR
             maxValueLabel()
+                .padding(.leading, 15)
         }
     }
 }
@@ -128,6 +129,22 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
         tickValues: [0,5,10,20,40,80,100],
         minValueLabel: {
             Text("Great")
+                .font(.body.bold())
+                .foregroundColor(.blue)
+        }, maxValueLabel: {
+            Text("100 pts")
+        })
+        .padding()
+}
+
+#Preview("At Genius") {
+    SpellingBeeGauge(
+        minValue: 0,
+        maxValue: 100,
+        value: 100,
+        tickValues: [0,5,10,20,40,80,100],
+        minValueLabel: {
+            Text("Genius")
                 .font(.body.bold())
                 .foregroundColor(.blue)
         }, maxValueLabel: {

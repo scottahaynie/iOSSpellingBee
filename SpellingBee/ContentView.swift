@@ -23,7 +23,7 @@
 // why word entry height changes when empty?
 // investigate % height layout -- need to use GeometryReader
 // support large text sizes
-// bug: New game modal switching level shouldn't alter current game
+// bug: every hexagon tap causes entire screen to re-render
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -31,6 +31,7 @@
 // dark mode
 //
 // DONE:
+// DONE bug: New game modal switching level shouldn't alter current game
 // DONE move Words Found component into separate class
 // DONE progress bar should align Genius to 100% ?
 // DONE kids mode - easier ranking
@@ -132,6 +133,8 @@ struct ContentView: View {
     @State private var showSettingsModal: Bool? = nil
     @State private var showWordsFound = false
     
+    @State private var newGameDifficultyLevel = GameState.DifficultyLevel.medium
+    
     @FocusState private var textFocused: Bool
     
     @AppStorage("hintsEnabled") private var hintsEnabled = false
@@ -199,9 +202,9 @@ struct ContentView: View {
         }
     }
     
-    private func restartGame() {
+    private func restartGame(level: GameState.DifficultyLevel) {
         let possibleMatchesRange: ClosedRange<Int>
-        switch game.difficultyLevel {
+        switch level {
         case .kids:
             possibleMatchesRange = 100...150
         case .easy:
@@ -245,6 +248,7 @@ struct ContentView: View {
                 stopAt: possibleMatchesRange.upperBound + 1)
             if possibleMatchesRange.contains(possibleWords.count) {
                 // hooray - we found a match!
+                game.difficultyLevel = level
                 game.outerLetters = String(chosenVowels.joined() + chosenCons.joined()).uppercased()
                 game.centerLetter = center.uppercased()
                 game.remainingWords = possibleWords
@@ -557,7 +561,7 @@ struct ContentView: View {
                 }
                 Spacer()
 
-                Picker("Difficulty", selection: $game.difficultyLevel) {
+                Picker("Difficulty", selection: $newGameDifficultyLevel) {
                     Text("Kids").tag(GameState.DifficultyLevel.kids)
                     Text("Easy").tag(GameState.DifficultyLevel.easy)
                     Text("Medium").tag(GameState.DifficultyLevel.medium)
@@ -569,13 +573,17 @@ struct ContentView: View {
                 Spacer()
                 Button {
                     showNewGameModal = false
-                    restartGame()
+                    restartGame(level: newGameDifficultyLevel)
                 } label: {
                     Text("Start Game")
                         .frame(height: 50)
                         .padding(.horizontal, 10)
                 }
                 .buttonStyle(.borderedProminent)
+            }
+            .onAppear {
+                // initialize level picker to same as current game
+                newGameDifficultyLevel = game.difficultyLevel
             }
 //ios16            .presentationDetents([.height(300)])
         }, onDismiss: {
