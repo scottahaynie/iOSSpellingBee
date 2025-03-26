@@ -110,6 +110,45 @@ extension Color: @retroactive RawRepresentable {
     }
 }
 
+// To capture hardware keyboard events -- onKeyPress is only iOS17+
+class MyViewController: UIViewController {
+    var onKeyPress: (UIKey) -> Void
+    public init(_ onKeyPress: @escaping (UIKey) -> Void) {
+        self.onKeyPress = onKeyPress
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    open override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        for press in presses {
+            if let key = press.key {
+                if press.phase == .began {
+                    DispatchQueue.main.async {
+                        self.onKeyPress(key)
+                    }
+                    return
+                }
+            }
+        }
+        super.pressesBegan(presses, with: event)
+    }
+}
+
+struct MyViewControllerView: UIViewControllerRepresentable {
+    typealias UIViewControllerType = UIViewController
+    var onKeyPress: (UIKey) -> Void
+    func makeUIViewController(context: Context) -> UIViewController {
+        MyViewController(onKeyPress)
+    }
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        // This is required or else onKeyPress func gets out of sync
+        if let myVC = uiViewController as? MyViewController {
+            myVC.onKeyPress = onKeyPress
+        }
+    }
+}
+
 struct ContentView: View {
     let logger = Logger(subsystem: Bundle.main.bundleIdentifier!,
                         category: String(describing: ContentView.self))
@@ -288,7 +327,21 @@ struct ContentView: View {
         }
     }
 
+    private func onKeyPress(key: UIKey) {
+        if key.keyCode == .keyboardDeleteOrBackspace {
+            updateEnteredWord(text: String(game.enteredWord.dropLast(1)))
+        } else if key.keyCode == .keyboardReturnOrEnter {
+            onSubmit()
+        } else if key.keyCode == .keyboardSpacebar {
+            isShuffling = true
+        } else if key.keyCode.rawValue >= UIKeyboardHIDUsage.keyboardA.rawValue &&
+                    key.keyCode.rawValue <= UIKeyboardHIDUsage.keyboardZ.rawValue {
+            updateEnteredWord(text: game.enteredWord + key.characters.uppercased())
+        }
+    }
+    
     var body: some View {
+        MyViewControllerView(onKeyPress: onKeyPress)
         VStack {
             //** TITLE BAR
             HStack {
