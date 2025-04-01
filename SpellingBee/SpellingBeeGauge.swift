@@ -49,7 +49,7 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
                                     .foregroundStyle(.black)
                             }
                     }
-                    let xProgress = geo.size.width * CGFloat(value) / CGFloat(maxValue - minValue)
+                    let xProgress = geo.size.width * min(CGFloat(value) / CGFloat(maxValue - minValue), 1.0)
                     RoundedRectangle(cornerRadius: 5)
                         .frame(width: xProgress, height: 5)
                         .foregroundStyle(AppColors.colorMain)
@@ -71,6 +71,7 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
             maxValueLabel()
                 .padding(.leading, 15)
         }
+        .contentShape(Rectangle())
     }
 }
 
@@ -121,12 +122,12 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
 //    }
 //}
 
-#Preview {
+#Preview("Great") {
     SpellingBeeGauge(
         minValue: 0,
-        maxValue: 100,
-        value: 57,
-        tickValues: [0,5,10,20,40,80,100],
+        maxValue: 70,
+        value: 45,
+        tickValues: [0,2,5,8,15,25,40,50,70],
         minValueLabel: {
             Text("Great")
                 .font(.body.bold())
@@ -140,9 +141,25 @@ struct SpellingBeeGauge<MinLabel: View, MaxLabel: View>: View {
 #Preview("At Genius") {
     SpellingBeeGauge(
         minValue: 0,
-        maxValue: 100,
-        value: 100,
-        tickValues: [0,5,10,20,40,80,100],
+        maxValue: 70,
+        value: 70,
+        tickValues: [0,2,5,8,15,25,40,50,70],
+        minValueLabel: {
+            Text("Genius")
+                .font(.body.bold())
+                .foregroundColor(.blue)
+        }, maxValueLabel: {
+            Text("100 pts")
+        })
+        .padding()
+}
+
+#Preview("Past Genius") {
+    SpellingBeeGauge(
+        minValue: 0,
+        maxValue: 70,
+        value: 85,
+        tickValues: [0,2,5,8,15,25,40,50,70],
         minValueLabel: {
             Text("Genius")
                 .font(.body.bold())

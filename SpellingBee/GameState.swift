@@ -58,8 +58,8 @@ class GameState: ObservableObject, Codable {
     func getRankRangeMarks() -> [Float] {
         return Rank.allCases.map { isKids ? $0.kidsRange.lowerBound : $0.range.lowerBound }
     }
-    func getRanksAndRanges() -> [(Rank, Range<Float>)] {
-        return Rank.allCases.map { ($0, isKids ? $0.kidsRange : $0.range ) }
+    func getRanksAndThresholds() -> [(Rank, Int)] {
+        return Rank.allCases.map { ($0, Int(Float(self.possiblePoints) * Float(isKids ? $0.kidsRange.lowerBound : $0.range.lowerBound))) }
     }
 
     enum Rank: String, CaseIterable {

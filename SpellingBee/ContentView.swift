@@ -15,15 +15,14 @@
 // move game business logic into separate class with its own unit tests
 // loading indicator while new game getting created
 // popup new game modal automatically (if no saved game)
-// tap on progress bar reveals rankings
 // show points to next rank, underneath progress bar - "6 points to Solid"
 // kids mode - easier words (# of syllables/ frequency)
 // support iPad layout
 //  -- problems: buttons pushed down past edge,
-// why word entry height changes when empty?
 // investigate % height layout -- need to use GeometryReader
 // support large text sizes
 // bug: every hexagon tap causes entire screen to re-render
+// layout bug: show/hide hints causes top and bottom rows to shift
 //
 // FUTURE:
 // animate when graduated to new level! throw confetti on screen - dancing gorilla
@@ -31,6 +30,8 @@
 // dark mode
 //
 // DONE:
+// DONE tap on progress bar reveals rankings
+// DONE why word entry height changes when empty?
 // DONE bug: New game modal switching level shouldn't alter current game
 // DONE move Words Found component into separate class
 // DONE progress bar should align Genius to 100% ?
@@ -170,6 +171,7 @@ struct ContentView: View {
     @State private var showHint = false
     @State private var showNewGameModal: Bool? = nil
     @State private var showSettingsModal: Bool? = nil
+    @State private var showRankingsModal: Bool = false
     @State private var showWordsFound = false
     
     @State private var newGameDifficultyLevel = GameState.DifficultyLevel.medium
@@ -341,7 +343,10 @@ struct ContentView: View {
     }
     
     var body: some View {
+        //TODO: still pushes content down for some reason
         MyViewControllerView(onKeyPress: onKeyPress)
+            .frame(width: 0, height: 0)
+
         VStack {
             //** TITLE BAR
             HStack {
@@ -374,7 +379,7 @@ struct ContentView: View {
             //.background(.blue.opacity(0.3).gradient, in: RoundedRectangle(cornerRadius: 8))
             .background(.linearGradient(colors: [AppColors.colorTitle.opacity(0.2), AppColors.colorTitle.opacity(0.5)], startPoint: .top, endPoint: .bottom), in: RoundedRectangle(cornerRadius: 8))
             .padding(.horizontal, -5)
-
+            
             //** PROGRESS GAUGE
             if !game.outerLetters.isEmpty {
                 let maxValue = Int(Float(game.possiblePoints) * (game.isKids ? GameState.Rank.Genius.kidsRange.lowerBound : GameState.Rank.Genius.range.lowerBound))
@@ -389,187 +394,197 @@ struct ContentView: View {
                             .foregroundColor(AppColors.colorMain)
                     }, maxValueLabel: {
                         Text("\(maxValue)")
-                    })
+                    }
+                )
+                .onTapGesture {
+                    showRankingsModal.toggle()
+                }
             }
 
             //** WORDS FOUND
             WordsFoundDropdown(words: game.guessedWords, showWordsFound: $showWordsFound)
-            Spacer(minLength: 40)
             
             if (!showWordsFound) {
-                // Word Entry
-                //TODO: TextField shows cursor, but couldn't prevent keyboard from popping up
-//                TextField(
-//                    "",
-//                    text: $game.enteredWord
-//                )
-//                .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
-//                .foregroundColor(.black)
-//                .textInputAutocapitalization(.characters)
-//                .autocorrectionDisabled(true)
-//                .disableAutocorrection(true)
-//                .textContentType(.name)
-//                //                    .focused($wordEntryFocused)
-//                .multilineTextAlignment(.center)
-//                .onSubmit {
-//                    onSubmit()
-//                }
-//                //.disabled(true)
-//                .focused($textFocused)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 5)
-//                        .stroke(Color.gray)
-//                )
-//                .padding(.horizontal, 0)//PADDING_HORIZONTAL)
-//                .onAppear {
-//                    DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-//                        textFocused = true
-//                    }
-//                }
-//
-                //** WORD ENTRY
-                Text(game.enteredWord)
-                    .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
-                    .foregroundColor(.black)
-                    .textInputAutocapitalization(.characters)
-                    .autocorrectionDisabled(true)
-                    .disableAutocorrection(true)
-                    .textContentType(.name)
-                //                    .focused($wordEntryFocused)
-                    .multilineTextAlignment(.center)
-                    .onSubmit {
-                        onSubmit()
-                    }
-                //.disabled(true)
-                    .focused($textFocused)
-                    .frame(maxWidth: .infinity, maxHeight: 60)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(Color.gray)
-                    )
-                    .padding(.horizontal, 0)//PADDING_HORIZONTAL)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-                            textFocused = true
+                Group {
+                    // Word Entry
+                    //TODO: TextField shows cursor, but couldn't prevent keyboard from popping up
+                    //                TextField(
+                    //                    "",
+                    //                    text: $game.enteredWord
+                    //                )
+                    //                .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
+                    //                .foregroundColor(.black)
+                    //                .textInputAutocapitalization(.characters)
+                    //                .autocorrectionDisabled(true)
+                    //                .disableAutocorrection(true)
+                    //                .textContentType(.name)
+                    //                //                    .focused($wordEntryFocused)
+                    //                .multilineTextAlignment(.center)
+                    //                .onSubmit {
+                    //                    onSubmit()
+                    //                }
+                    //                //.disabled(true)
+                    //                .focused($textFocused)
+                    //                .overlay(
+                    //                    RoundedRectangle(cornerRadius: 5)
+                    //                        .stroke(Color.gray)
+                    //                )
+                    //                .padding(.horizontal, 0)//PADDING_HORIZONTAL)
+                    //                .onAppear {
+                    //                    DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
+                    //                        textFocused = true
+                    //                    }
+                    //                }
+                    //
+                    //** WORD ENTRY
+                    Text(game.enteredWord)
+                        .font(Font.system(size: 50, weight: .heavy, design: .monospaced))
+                        .foregroundColor(.black)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled(true)
+                        .disableAutocorrection(true)
+                        .textContentType(.name)
+                    //                    .focused($wordEntryFocused)
+                        .multilineTextAlignment(.center)
+                        .onSubmit {
+                            onSubmit()
                         }
-                    }
-
-                //** MATCHING WORDS HINT
-                if hintsEnabled {
-                    if showHint {
-                        Text(game.numWordsWithPrefix == -1 ? " " :
-                                "\(game.numWordsWithPrefix) matching words"
+                    //.disabled(true)
+                        .focused($textFocused)
+                        .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.gray)
                         )
-                        //.transition(.opacity.combined(with: .move(edge: .leading)))
-                        .transition(.opacity)  // .blurReplace
-                        .frame(height: 30)
-                        .padding()
-                    } else {
-                        Button {
-                            withAnimation() {
-                                showHint = true
+                        .padding(.horizontal, 0)//PADDING_HORIZONTAL)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
+                                textFocused = true
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                withAnimation() {
-                                    showHint = false
+                        }
+                    
+                    //** MATCHING WORDS HINT
+                    ZStack {
+                        //** HONEYCOMB
+                        GeometryReader { geometryHoneycomb in
+                            Honeycomb(
+                                outerLetters: game.outerLetters,
+                                centerLetter: game.centerLetter,
+                                rect: CGRect(
+                                    x: geometryHoneycomb.size.width / 2,
+                                    y: geometryHoneycomb.size.height / 2,
+                                    width: 100,
+                                    height: 100
+                                ),
+                                isShuffling: $isShuffling,
+                                outerColor: $hexagonColor,
+                                centerColor: $centerHexagonColor,
+                                onTap: { text, isCenter in
+                                    if soundsEnabled { Sounds.playSound(.softClick) }
+                                    logger.debug("Honeycomb letter entered: \(text), isCenter: \(isCenter)")
+                                    updateEnteredWord(text: game.enteredWord + text)
                                 }
+                            )//.border(.red)
+                        }
+                        .frame(height: 300)
+
+                        if hintsEnabled {
+                            if showHint {
+                                Text(game.numWordsWithPrefix == -1 ? " " :
+                                        "\(game.numWordsWithPrefix) matching words"
+                                )
+                                //.transition(.opacity.combined(with: .move(edge: .leading)))
+                                .transition(.opacity)  // .blurReplace
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                //.padding()
+                            } else {
+                                Button {
+                                    withAnimation() {
+                                        showHint = true
+                                        if (soundsEnabled) { Sounds.playSound(.magical) }
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                        withAnimation() {
+                                            showHint = false
+                                        }
+                                    }
+                                } label: {
+                                    Text("Show hint")
+                                        .frame(height: 30)
+                                }
+                                .tint(hexagonColor)
+                                .disabled(showHint || game.numWordsWithPrefix == -1)
+                                .transition(.opacity)
+                                .buttonStyle(.borderedProminent)
+                                // need frame/padding too so it's same height as "2 matching words" Text
+                                //.frame(height: 30)//, alignment: .topTrailing)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                //.padding()
                             }
+                        }
+                    } //ZStack
+                    
+                    //** BUTTON ROW
+                    HStack {
+                        // Delete Button
+                        Button(action: {
+                        }) {
+                            //not needed?
+                            //                        VStack {
+                            Image(systemName: "delete.left.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.all, 10)
+                                .frame(width: 80, height: 50)
+                                .contentShape(Rectangle()) // to make space around image tappable
+                                .onTapGesture {
+                                    updateEnteredWord(text: String(game.enteredWord.dropLast(1)))
+                                    if soundsEnabled { Sounds.playSound(.erase1) }
+                                }
+                                .onLongPressGesture(minimumDuration: 0.1) {
+                                    updateEnteredWord(text: "")
+                                    if soundsEnabled { Sounds.playSound(.erase1) }
+                                }
+                            
+                            //                        }
+                        }
+                        .tint(hexagonColor)
+                        .disabled(game.outerLetters.isEmpty || game.enteredWord.isEmpty)
+                        .buttonStyle(.borderedProminent)
+                        
+                        // Shuffle Button
+                        Button {
+                            isShuffling = true
+                            if soundsEnabled { Sounds.playSound(.shuffle1) }
                         } label: {
-                            Text("Show hint")
-                                .frame(height: 30)
+                            Image(systemName: "shuffle")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.all, 10)
+                                .frame(width: 50, height: 50)
                         }
-                        .disabled(showHint || game.numWordsWithPrefix == -1)
-                        .transition(.opacity)
-                        .buttonStyle(.bordered)
-                        // need frame/padding too so it's same height as "2 matching words" Text
-                        .frame(height: 30)
-                        .padding()
-                    }
-                }
-
-                //** HONEYCOMB
-                GeometryReader { geometryHoneycomb in
-                    Honeycomb(
-                        outerLetters: game.outerLetters,
-                        centerLetter: game.centerLetter,
-                        rect: CGRect(
-                            x: geometryHoneycomb.size.width / 2,
-                            y: geometryHoneycomb.size.height / 2,
-                            width: 100,
-                            height: 100
-                        ),
-                        isShuffling: $isShuffling,
-                        outerColor: $hexagonColor,
-                        centerColor: $centerHexagonColor,
-                        onTap: { text, isCenter in
-                            if soundsEnabled { Sounds.playSound(.softClick) }
-                            logger.debug("Honeycomb letter entered: \(text), isCenter: \(isCenter)")
-                            updateEnteredWord(text: game.enteredWord + text)
+                        .tint(hexagonColor)
+                        .disabled(game.outerLetters.isEmpty)
+                        .buttonStyle(.borderedProminent)
+                        
+                        // Enter Button
+                        Button {
+                            onSubmit()
+                        } label: {
+                            Text("**Enter**")
+                                .frame(width: 80, height: 50)
                         }
-                    )//.border(.red)
-                }
-                .frame(height: 300)
-
-                //** BUTTON ROW
-                HStack {
-                    // Delete Button
-                    Button(action: {
-                    }) {
-                        //not needed?
-                        //                        VStack {
-                        Image(systemName: "delete.left.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(.all, 10)
-                            .frame(width: 80, height: 50)
-                            .contentShape(Rectangle()) // to make space around image tappable
-                            .onTapGesture {
-                                updateEnteredWord(text: String(game.enteredWord.dropLast(1)))
-                                if soundsEnabled { Sounds.playSound(.erase1) }
-                            }
-                            .onLongPressGesture(minimumDuration: 0.1) {
-                                updateEnteredWord(text: "")
-                                if soundsEnabled { Sounds.playSound(.erase1) }
-                            }
-
-                        //                        }
+                        .tint(hexagonColor)
+                        .disabled(game.outerLetters.isEmpty)
+                        .buttonStyle(.borderedProminent)
                     }
-                    .tint(hexagonColor)
-                    .disabled(game.outerLetters.isEmpty || game.enteredWord.isEmpty)
-                    .buttonStyle(.borderedProminent)
-                    
-                    // Shuffle Button
-                    Button {
-                        isShuffling = true
-                        if soundsEnabled { Sounds.playSound(.shuffle1) }
-                    } label: {
-                        Image(systemName: "shuffle")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(.all, 10)
-                            .frame(width: 50, height: 50)
-                    }
-                    .tint(hexagonColor)
-                    .disabled(game.outerLetters.isEmpty)
-                    .buttonStyle(.borderedProminent)
-                    
-                    // Enter Button
-                    Button {
-                        onSubmit()
-                    } label: {
-                        Text("**Enter**")
-                            .frame(width: 80, height: 50)
-                    }
-                    .tint(hexagonColor)
-                    .disabled(game.outerLetters.isEmpty)
-                    .buttonStyle(.borderedProminent)
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
         .padding(.all, 12 + PADDING_HORIZONTAL)
         
-        // Present a toast if needed
+        //** WORD FOUND TOAST
         .toast(isPresenting: $showToast, duration: 1.5, alert: {
             switch (toastType) {
             case ToastType.toastFound:
@@ -592,6 +607,7 @@ struct ContentView: View {
             //UISegmentedControl.appearance().setContentHuggingPriority(.defaultLow, for: .vertical)
         })
 
+        //** NEW GAME MODAL
 //ios16        .sheet(isPresented: $showNewGameModal, content: {
         .halfSheet(showSheet: $showNewGameModal, content: {
             VStack {
@@ -631,8 +647,10 @@ struct ContentView: View {
                     Text("Start Game")
                         .frame(height: 50)
                         .padding(.horizontal, 10)
+                        .font(.title2.bold())
                 }
                 .buttonStyle(.borderedProminent)
+                .padding()
             }
             .onAppear {
                 // initialize level picker to same as current game
@@ -643,6 +661,7 @@ struct ContentView: View {
             logger.debug("new game modal dismissed")
         })
 
+        //** SETTINGS MODAL
 //ios16        .sheet(isPresented: $showSettingsModal, content: {
         .halfSheet(showSheet: $showSettingsModal, content: {
             VStack {
@@ -693,6 +712,61 @@ struct ContentView: View {
         }, onDismiss: {
             logger.debug("settings modal dismissed")
         })
+        
+        //** RANKINGS MODAL
+        .sheet(isPresented: $showRankingsModal, content: {
+            VStack {
+                ZStack {
+                    Text("Rankings")
+                        .font(.title)
+                    HStack {
+                        Spacer()
+                        Button {
+                            showSettingsModal = false
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.all, 10)
+                                .frame(width: 50, height: 50)
+                        }
+                    }
+                    .padding(.top, 5)
+                }
+            }
+            VStack {
+                Text("Rankings are based on a percentage of possible points in the puzzle.")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                let rankTuples = game.getRanksAndThresholds().reversed()
+                ForEach(rankTuples.indices, id: \.self) { index in
+                    let isCurrentRank = rankTuples[index].0 == game.rank
+                    HStack {
+                        VStack {
+                            Text("\(rankTuples[index].0.rawValue)")
+                                .foregroundStyle(isCurrentRank ? .white : .black)
+                                .font(isCurrentRank ? .body.bold() : .body)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if isCurrentRank {
+                                //wtf - can't do rankTuples[index-1] here!
+                                let pointsToNextRank = rankTuples[rankTuples.index(index, offsetBy: -1)].1 - rankTuples[index].1
+                                Text("\(pointsToNextRank) points to next rank")
+                                    .foregroundStyle(.white)
+                                    .font(.custom("", size: 10, relativeTo: .caption2))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        Spacer()
+                        Text("\(rankTuples[index].1)")
+                            .foregroundStyle(isCurrentRank ? .white : .black)
+                            .font(isCurrentRank ? .body.bold() : .body)
+                    }
+                    .padding(.all, 5)
+                    .background(isCurrentRank ? AppColors.colorMain : .gray.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 100)
+        })
     }
 }
 
@@ -703,8 +777,9 @@ struct ContentView: View {
             game.outerLetters = "CTDREO"
             game.centerLetter = "B"
             game.guessedWords = ["hello", "this", "word", "great", "again", "amazing", "another", "telephone"]
-            game.guessedPoints = 123
+            game.guessedPoints = 100
             game.possiblePoints = 150
+            game.difficultyLevel = .medium
         }()
         ContentView(game: game, dictionary: Trie())
     }

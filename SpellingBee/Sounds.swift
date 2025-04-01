@@ -32,6 +32,7 @@ struct Sounds {
         case erase1 = "woop.m4a"
         case burpbig = "burp-20581.mp3"
         case gorilla1 = "gorilla1-louder.m4a"
+        case magical = "magical.m4a"
     }
 
     static var soundIds: [Sound: SystemSoundID] = [:]
